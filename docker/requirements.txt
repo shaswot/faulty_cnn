@@ -8,7 +8,6 @@ pyyaml
 natsort
 scikit-learn
 scikit-image
-pathlib
 autopep8
 ipynbname
 bitarray
