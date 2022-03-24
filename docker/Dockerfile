@@ -31,8 +31,8 @@ RUN mkdir -p /stash
 VOLUME /stash
 
 # folder to store the project
-RUN mkdir -p /repos
-COPY . /repos/
+RUN mkdir -p /repos/faulty_cnn
+COPY . /repos/faulty_cnn
 
 # define the port number the container should expose
 # All running containers expose 8888
