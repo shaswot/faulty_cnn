@@ -9,6 +9,9 @@ Build docker image using
 > docker build -f ./docker/Dockerfile -t <some_image_name:tag> .
 
 Spin up a docker container
+> Pause git tracking for start_docker_container.sh
+>> git update-index --assume-unchanged ./start_docker_container.sh
+
 > Make appropriate changes to start_docker_container.sh
 >> --name <whimsical_container_name>,   
 >> -p <host_machine_jupyter_lab_port>:8888,  
