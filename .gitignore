@@ -1,15 +1,22 @@
+# Python
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+
 # Jupyter Notebook
-.ipynb_checkpoints
-.ipynb_checkpoints/
-.idea/
+**/.ipynb_checkpoints
+**/.idea
 
 # Tensorboard Logs
-/runs
+**/runs
 
-# Saved Models
+# Saved Models and Seeds
 **/weights
 **/models
 *.pt
+*.dat
 
 # Logfiles
 **/logfiles
