@@ -24,15 +24,3 @@ for seed in model_seeds:
     model_instance = model_type + "-" + str(seed)
     model_file = mnist32_cnn.train_mnist32(model_instance, show_summary=False)
     
-# Evaluate models
-for seed in model_seeds:
-    model_instance = model_type + "-" + str(seed)
-    dataset, model_arch, model_config, layer_widths, seed = utils.instancename2metadata(model_instance)
-    model_meta_type, model_type, model_instance = utils.metadata2instancenames(dataset, model_arch, layer_widths, seed)
-    
-    model_folder = pathlib.Path(PROJ_ROOT_PATH / "models" / model_meta_type / model_type)
-    model_filename = model_instance + ".h5"
-    model_file = pathlib.Path(model_folder/ model_filename)
-    
-    [accuracy, conf_matrix] = mnist32_cnn.test_mnist32(model_file, show_summary=False)
-    print(f"Model: {model_instance} \t Accuracy:{accuracy*100:0.3f}%")
