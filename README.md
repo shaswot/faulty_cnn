@@ -15,11 +15,11 @@ Spin up a docker container
 > Make appropriate changes to start_docker_container.sh
 >> --name <whimsical_container_name>,   
 >> -p <host_machine_jupyter_lab_port>:8888,  
->> -p <host_machine_tensorboardb_port>:6006,  
+>> -p <host_machine_tensorboard_port>:6006,  
 >> <some_image_name:tag>  
 
 > and then run the script
->> chmod +x start_docker_container.sh
+>> chmod +x start_docker_container.sh  
 >> ./start_docker_container.sh
 
 You can access the docker container from your favorite browser using
