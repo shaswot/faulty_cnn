@@ -8,13 +8,13 @@ MAINTAINER shaswot <shaswot@acsl.ics.keio.ac.jp>
 RUN apt-get -yqq update --fix-missing
 
 RUN apt-get -yqq install \
-	screen \
+        screen \
         vim \
         git \
         openssh-server \
         htop \
         wget \
-	net-tools \
+        net-tools \
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/*
 
@@ -26,9 +26,13 @@ COPY ./docker/requirements.txt /tmp/
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-#. folder to share files with host machine
+# folder to share files with host machine
 RUN mkdir -p /stash
 VOLUME /stash
+
+# folder to store the project
+RUN mkdir -p /repos
+COPY . /repos/
 
 # define the port number the container should expose
 # All running containers expose 8888
