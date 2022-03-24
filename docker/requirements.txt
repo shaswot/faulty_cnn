@@ -11,3 +11,4 @@ scikit-image
 autopep8
 ipynbname
 bitarray
+gitpython
