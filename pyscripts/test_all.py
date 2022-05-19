@@ -6,8 +6,8 @@ import git
 import pathlib
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1' # don't use GPU
-# Using GPU during inference has deterministic results
+os.environ['CUDA_VISIBLE_DEVICES'] = '0' # use GPU
+# Using GPU during inference has deterministic results (same as CPU)
 
 PROJ_ROOT_PATH = pathlib.Path(git.Repo('.', search_parent_directories=True).working_tree_dir)
 PROJ_ROOT =  str(PROJ_ROOT_PATH)
