@@ -19,8 +19,8 @@ rng = np.random.default_rng(27)
 
 # model seeds
 print("Generating model seeds")
-model_seeds = sorted(rng.integers(low=10, 
-                        high=99, 
+model_seeds = sorted(rng.integers(low=1000, 
+                        high=9999, 
                         size=NO_OF_SEEDS))
 model_seeds_filename = "model_seeds.dat"
 model_seeds_file = pathlib.Path(SEEDS_FOLDER / model_seeds_filename)
@@ -28,8 +28,8 @@ np.savetxt(model_seeds_file, model_seeds, fmt="%d")
 
 # error_profile seeds
 print("Generating error seeds")
-error_seeds = sorted(rng.integers(low=11, 
-                        high=99, 
+error_seeds = sorted(rng.integers(low=1111, 
+                        high=9999, 
                         size=NO_OF_SEEDS))
 error_seeds_filename = "error_seeds.dat"
 error_seeds_file = pathlib.Path(SEEDS_FOLDER / error_seeds_filename)
