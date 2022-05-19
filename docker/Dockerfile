@@ -19,7 +19,12 @@ RUN apt-get -yqq install \
         && rm -rf /var/lib/apt/lists/*
 
 
+# set a directory for the repos 
+RUN mkdir -p /repos/faulty_cnn
+
+
 # copy files to the container
+COPY . /repos/faulty_cnn
 COPY ./docker/requirements.txt /tmp/
 
 # install dependencies
