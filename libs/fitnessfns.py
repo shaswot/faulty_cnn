@@ -355,4 +355,49 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     ## count no. of wrong predicitons
     # return predictions
     return tf.math.reduce_sum(tf.cast(tf.math.not_equal(tf.cast(b_labels, dtype=tf.int64), predictions), dtype=tf.int64))
-###############################################################################################################################
+##############################################################################################################################
+def ff_lenet_3hidden_ERRexpbitflips(model,
+                                    error_profile_c0,
+                                    error_profile_h0,
+                                    error_profile_h1,
+                                    error_profile_h2,
+                                    error_profile_op,
+                                    ERR_PARAM,
+                                    clayer0_shuffle_order,
+                                    hlayer0_shuffle_order,
+                                    hlayer1_shuffle_order,
+                                    hlayer2_shuffle_order,
+                                    oplayer_shuffle_order,
+                                    test_set,
+                                    batchsize):
+    
+    if ERR_PARAM is not None:
+        ERR_PARAM_TF = tf.constant(ERR_PARAM)
+    else:
+        ERR_PARAM_TF = None
+    # create dataset
+    test_dataset = tf.data.Dataset.from_tensor_slices(test_set)
+    # Dataset size should be a multiple of BATCH_SIZE
+    test_dataset = test_dataset.batch(batchsize, drop_remainder=True)
+    tot_images = test_dataset.cardinality() *batchsize
+    misses = 0
+    for step, (b_images, b_labels) in enumerate(test_dataset):
+        b_misses = batch_lenet_3hidden_ERRexpbitflips( b_images,
+                                                        b_labels,
+                                                        model,
+                                                        error_profile_c0,
+                                                        error_profile_h0,
+                                                        error_profile_h1,
+                                                        error_profile_h2,
+                                                        error_profile_op,
+                                                        ERR_PARAM_TF,
+                                                        clayer0_shuffle_order,
+                                                        hlayer0_shuffle_order,
+                                                        hlayer1_shuffle_order,
+                                                        hlayer2_shuffle_order,
+                                                        oplayer_shuffle_order)
+        
+        misses = misses + b_misses
+
+    return (tot_images-misses)/tot_images
+##############################################################################################################################
