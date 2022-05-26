@@ -3,7 +3,7 @@ import numpy as np
 import warnings
 
 # CONSTANTS
-from libs.errmatmul import matmul_ERRexpbitflips, N_THREADS_PER_BLOCK, NO_OF_CLASSES0
+from libs.errmatmul import matmul_ERRexpbitflips, N_THREADS_PER_BLOCK, NO_OF_CLASSES
 
 # Batchwise accuracy evaluation of LeNet CNN model using matmul_ERRexpbitflips
 @tf.function
@@ -30,9 +30,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         
         Calls: matmul_ERRexpbitflips
     """
-    
-    batchsize = len(b_labels)
-    
+       
     # get weights and biases from model
     conv2d_kernels, conv2d_biases = model.get_layer("conv2d").weights
     fc_0_weights, fc_0_biases = model.get_layer("fc_0").weights
@@ -44,10 +42,12 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     # L0: CONVOLUTION LAYER
     ## L0.A: Get dimension values
     #### kernel height, kernel width, no of channels in input image, no of filter kernels 
-    kr_ht, kr_wt, no_ch, no_kr = convLO2d_kernels.shape
+    kr_ht, kr_wt, no_ch, no_kr = conv2d_kernels.shape
 
-    assert no_im == b_images.shape[0]
-    assert no_ch == b_images.shape[-1]
+    no_im = b_images.shape[0]
+    no_ch = b_images.shape[-1]
+    
+    assert no_im == len(b_labels)
     
     ### input image dimensions
     im_ht = b_images.shape[1]
@@ -62,7 +62,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     patch_len     = kr_ht * kr_wt * no_ch
     
     ## L0.B: Extract Images Patches
-    patches = tf.image.extract_patches(images=images,
+    patches = tf.image.extract_patches(images=b_images,
                                      sizes=[1, kr_ht, kr_wt, 1],
                                      strides=[1, 1, 1, 1],
                                      rates=[1, 1, 1, 1],
@@ -85,7 +85,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         single_im_patch = flat_patches[im,:,:]
         # conv_out_list.append(tf.matmul(flat_kernels, single_im_patch))
         BLOCK_HEIGHT = N_THREADS_PER_BLOCK # no. of threads per block
-        BLOCK_WIDTH = kr_ht*kr_wt*no_ch # totcols is always (going to be) a multiple of BLOCK_WIDTH
+        BLOCK_WIDTH = kr_ht*kr_wt # totcols is always (going to be) a multiple of BLOCK_WIDTH
         BATCH_BLOCK_SIZE = 32 # user-defined: NOT the actual batch block size in this context.
                                 # simply the tile block width of matB
         # pad matrix for good matrix shape
@@ -105,18 +105,17 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         
         # is error injection required
         if error_profile_c0 is not None:
-            conv_mul_out_list.append(matmul_ERRexpbitflips(shuffled_kernels, 
+            shuffled_conv_mul_out = matmul_ERRexpbitflips(shuffled_kernels, 
                                                            padded_single_im_patch,
                                                            BLOCK_HEIGHT, 
                                                            BLOCK_WIDTH, 
                                                            BATCH_BLOCK_SIZE, 
                                                            ERR_PROFILE=error_profile_c0,
-                                                           ERR_PARAM_TF=ERR_PARAM_TF,)[:,:-no_cols_to_pad])
+                                                           ERR_PARAM_TF=ERR_PARAM_TF,)[:,:-no_cols_to_pad]            
 
         else:
-            conv_mul_out_list.append(tf.matmul(shuffled_kernels, padded_single_im_patch))
+            shuffled_conv_mul_out = tf.matmul(shuffled_kernels, padded_single_im_patch)[:,:-no_cols_to_pad]
         
-        shuffled_conv_out = tf.stack(conv_mul_out_list)
         # was the kernel matrix shuffled ?
         if clayer0_shuffle_order is not None:
             # unshuffle conv_out
@@ -124,10 +123,13 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
             updates = tf.range(tf.size(indices))
             shape = clayer0_shuffle_order.shape
             scatter = tf.scatter_nd(indices, updates, shape)
-            conv_out = tf.gather(shuffled_conv_out, scatter)
+            conv_mul_out = tf.gather(shuffled_conv_mul_out, scatter)
         else:
-            conv_out = shuffled_conv_out
-    
+            conv_mul_out = shuffled_conv_mul_out
+        conv_mul_out_list.append(conv_mul_out)
+        # this completes the matrix multiplication equivalent of convolution of *ONE* image in the batch of image
+        
+    conv_out = tf.stack(conv_mul_out_list)
     conv_out = tf.transpose(conv_out, (0,2,1)) # rearrange channel order
     conv_out = tf.reshape(conv_out, (no_im, y_ht,y_wt, no_kr)) # reshape to filter output shape
 
@@ -167,7 +169,8 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         ## multiply with shuffled weight matrix
         BLOCK_HEIGHT = N_THREADS_PER_BLOCK # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
-        BATCH_BLOCK_SIZE = 32 # user-defined: assuming batchsize is always a multiple of BATCH_BLOCK_SIZE
+        BATCH_BLOCK_SIZE = 1 # in reality, inference is always one image at a time. 
+                             # However, here we are using batch inference here for speedup
         shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
                                                    fc_0_in,
                                                    BLOCK_HEIGHT, 
@@ -176,7 +179,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
                                                    ERR_PROFILE=error_profile_h0,
                                                    ERR_PARAM_TF=ERR_PARAM_TF)
     else:
-        shuffled_fc_0_mult_out = tf.linalg.matmul(shuffled_weights, fc_0_in)
+        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, fc_0_in)
         
     ## was the weight matrix shuffled
     if hlayer0_shuffle_order is not None:
@@ -201,7 +204,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     
     # L4: FC1
     ## tranpose input vector
-    fc_1_in = tf.transpose(fc_0_out, perm=[1,0]) #[flat_vec_size, batch_size]
+    fc_1_in = fc_0_out
     ## transpose weight matrices
     fc_1_weights_tr = tf.transpose(fc_1_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
 
@@ -217,7 +220,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         ## multiply with shuffled weight matrix
         BLOCK_HEIGHT = N_THREADS_PER_BLOCK # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
-        BATCH_BLOCK_SIZE = 32 # user-defined: assuming batchsize is always a multiple of BATCH_BLOCK_SIZE
+        BATCH_BLOCK_SIZE = 1 # inference is always one image at a time.
         shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
                                                    fc_1_in,
                                                    BLOCK_HEIGHT, 
@@ -226,7 +229,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
                                                    ERR_PROFILE=error_profile_h1,
                                                    ERR_PARAM_TF=ERR_PARAM_TF)
     else:
-        shuffled_fc_1_mult_out = tf.linalg.matmul(shuffled_weights, fc_1_in)
+        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, fc_1_in)
         
     ## was the weight matrix shuffled
     if hlayer1_shuffle_order is not None:
@@ -247,125 +250,109 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     # fc_1_out needs to be transposed again in fc_2_in
     # so although fc_1_out shape is not "standard", we output it as it is
     
+#####################################################################################
     
-    
-    
-#---------------------------------------------------------#
-    # flatten input
-    flattened_input = tf.reshape(b_images, shape=(batchsize,-1))
-    #####################################################################################
-    # hidden_layer_0
-    hidden_layer_0_in = tf.transpose(flattened_input, perm=[1,0])
-    if hlayer0_shuffle_order is not None:
-        # shuffle weight matrix
-        shuffled_weights = tf.gather(hidden_layer_0_weights_tr, hlayer0_shuffle_order)
+    # L5: FC2
+    ## tranpose input vector
+    fc_2_in = fc_1_out
+    ## transpose weight matrices
+    fc_2_weights_tr = tf.transpose(fc_2_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
+
+    ## is shuffling required
+    if hlayer2_shuffle_order is not None:
+        ## shuffle weight matrix
+        shuffled_weights = tf.gather(fc_2_weights_tr, hlayer2_shuffle_order)
     else:
-        shuffled_weights = hidden_layer_0_weights_tr
+        shuffled_weights = fc_2_weights_tr
         
-    if error_profile_h0 is not None:
+    ## is error injection required
+    if error_profile_h2 is not None:
         ## multiply with shuffled weight matrix
         BLOCK_HEIGHT = N_THREADS_PER_BLOCK # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
-        BATCH_BLOCK_SIZE = 32 # user-defined: assuming batchsize is always a multiple of BATCH_BLOCK_SIZE
-        shuffled_mult_out =  matmul_ERRexpbitflips(shuffled_weights, 
-                                             hidden_layer_0_in,
-                                             BLOCK_HEIGHT, 
-                                             BLOCK_WIDTH, 
-                                             BATCH_BLOCK_SIZE, 
-                                             ERR_PROFILE=error_profile_h0,
-                                             ERR_PARAM_TF=ERR_PARAM_TF)
+        BATCH_BLOCK_SIZE = 1 # inference is always one image at a time.
+        shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
+                                                   fc_2_in,
+                                                   BLOCK_HEIGHT, 
+                                                   BLOCK_WIDTH, 
+                                                   BATCH_BLOCK_SIZE, 
+                                                   ERR_PROFILE=error_profile_h2,
+                                                   ERR_PARAM_TF=ERR_PARAM_TF)
     else:
-        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, hidden_layer_0_in)
+        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, fc_2_in)
         
-    if hlayer0_shuffle_order is not None:
+    ## was the weight matrix shuffled
+    if hlayer2_shuffle_order is not None:
         # unshuffle mult_out
-        indices = tf.expand_dims(hlayer0_shuffle_order, axis=1)
+        indices = tf.expand_dims(hlayer2_shuffle_order, axis=1)
         updates = tf.range(tf.size(indices))
-        shape = hlayer0_shuffle_order.shape
+        shape = hlayer2_shuffle_order.shape
         scatter = tf.scatter_nd(indices, updates, shape)
-        hidden_layer_0_mult = tf.gather(shuffled_mult_out, scatter)
+        fc_2_mult_out = tf.gather(shuffled_mult_out, scatter)
     else:
-        hidden_layer_0_mult = shuffled_mult_out
-    ## add bias
-    hidden_layer_0_bout = hidden_layer_0_mult + hidden_layer_0_biases
-    ## ReLU
-    hidden_layer_0_out = tf.nn.relu(hidden_layer_0_bout)
-    #####################################################################################
-    # hidden_layer_1
-    hidden_layer_1_in = hidden_layer_0_out
-    if hlayer1_shuffle_order is not None:
-        # shuffle weight matrix
-        shuffled_weights = tf.gather(hidden_layer_1_weights_tr, hlayer1_shuffle_order)
-    else:
-        shuffled_weights = hidden_layer_1_weights_tr
+        fc_2_mult_out = shuffled_mult_out
+        
+
+    # Add bias
+    fc_2_bout = tf.add(fc_2_mult_out, tf.expand_dims(fc_2_biases,axis=1))
+    # RelU
+    fc_2_out = tf.nn.relu(fc_2_bout)
+    # fc_1_out needs to be transposed again in fc_2_in
+    # so although fc_1_out shape is not "standard", we output it as it is
     
-    if error_profile_h1 is not None:
-        ## multiply with shuffled weight matrix
-        BLOCK_HEIGHT = N_THREADS_PER_BLOCK # no. of threads per block
-        BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
-        BATCH_BLOCK_SIZE = 32 # user-defined: assuming batchsize is always a multiple of BATCH_BLOCK_SIZE
-        shuffled_mult_out =  matmul_ERRexpbitflips(shuffled_weights, 
-                                             hidden_layer_1_in,
-                                             BLOCK_HEIGHT, 
-                                             BLOCK_WIDTH, 
-                                             BATCH_BLOCK_SIZE, 
-                                             ERR_PROFILE=error_profile_h1,
-                                             ERR_PARAM_TF=ERR_PARAM_TF)
-    else:
-        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, hidden_layer_1_in)
-        
-    if hlayer1_shuffle_order is not None:
-        # unshuffle mult_out
-        indices = tf.expand_dims(hlayer1_shuffle_order, axis=1)
-        updates = tf.range(tf.size(indices))
-        shape = hlayer1_shuffle_order.shape
-        scatter = tf.scatter_nd(indices, updates, shape)
-        hidden_layer_1_mult = tf.gather(shuffled_mult_out, scatter)
-    else:
-        hidden_layer_1_mult = shuffled_mult_out
-    ## add bias
-    hidden_layer_1_bout = hidden_layer_1_mult + hidden_layer_1_biases
-    ## ReLU
-    hidden_layer_1_out = tf.nn.relu(hidden_layer_1_bout)
-    #####################################################################################
-    # output_layer
-    output_layer_in = hidden_layer_1_out
+#####################################################################################
+    
+    # L6: OUTPUT LAYER
+    ## tranpose input vector
+    op_layer_in = fc_2_out
+    ## transpose weight matrices
+    op_layer_weights_tr = tf.transpose(op_layer_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
+
+    ## is shuffling required
     if oplayer_shuffle_order is not None:
-        # shuffle weight matrix
-        shuffled_weights = tf.gather(output_layer_weights_tr, oplayer_shuffle_order)
+        ## shuffle weight matrix
+        shuffled_weights = tf.gather(op_layer_weights_tr, oplayer_shuffle_order)
     else:
-        shuffled_weights = output_layer_weights_tr
-    
+        shuffled_weights = op_layer_weights_tr
+        
+    ## is error injection required
     if error_profile_op is not None:
-        # multiply with shuffled weight matrix
-        BLOCK_HEIGHT = NO_OF_CLASSES # no. of output classes
+        ## multiply with shuffled weight matrix
+        BLOCK_HEIGHT = NO_OF_CLASSES # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
-        BATCH_BLOCK_SIZE = 32 # user-defined: assuming batchsize is always a multiple of BATCH_BLOCK_SIZE
-        shuffled_mult_out =  matmul_ERRexpbitflips(shuffled_weights, 
-                                                 output_layer_in,
-                                                 BLOCK_HEIGHT, 
-                                                 BLOCK_WIDTH, 
-                                                 BATCH_BLOCK_SIZE, 
-                                                 ERR_PROFILE=error_profile_op,
-                                                 ERR_PARAM_TF=ERR_PARAM_TF)
+        BATCH_BLOCK_SIZE = 1 # inference is always one image at a time.
+        shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
+                                                   op_layer_in,
+                                                   BLOCK_HEIGHT, 
+                                                   BLOCK_WIDTH, 
+                                                   BATCH_BLOCK_SIZE, 
+                                                   ERR_PROFILE=error_profile_op,
+                                                   ERR_PARAM_TF=ERR_PARAM_TF)
     else:
-        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, output_layer_in)
-    
-    if oplayer_shuffle_order is not None:    
+        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, op_layer_in)
+        
+    ## was the weight matrix shuffled
+    if oplayer_shuffle_order is not None:
         # unshuffle mult_out
         indices = tf.expand_dims(oplayer_shuffle_order, axis=1)
         updates = tf.range(tf.size(indices))
         shape = oplayer_shuffle_order.shape
         scatter = tf.scatter_nd(indices, updates, shape)
-        output_layer_mult = tf.gather(shuffled_mult_out, scatter)
+        op_layer_mult_out = tf.gather(shuffled_mult_out, scatter)
     else:
-        output_layer_mult = shuffled_mult_out
-    ## add bias
-    output_layer_out = output_layer_mult + output_layer_biases
-    #####################################################################################
-    ## softmax
-    class_scores = tf.nn.softmax(output_layer_out, axis=0)
-    predictions = tf.math.argmax(class_scores)
+        op_layer_mult_out = shuffled_mult_out
+        
+
+    # Add bias
+    op_layer_bout = tf.add(op_layer_mult_out, tf.expand_dims(op_layer_biases,axis=1))
+    # Softmax
+    op_layer_out = tf.nn.softmax(op_layer_bout, axis=0)
+    # Tranpose to standard order
+    class_scores = tf.transpose(op_layer_out, perm=[1,0])
+    
+    # Get predictions
+    predictions = tf.math.argmax(class_scores, axis=1)
     ## count no. of wrong predicitons
+    # return predictions
     return tf.math.reduce_sum(tf.cast(tf.math.not_equal(tf.cast(b_labels, dtype=tf.int64), predictions), dtype=tf.int64))
 ###############################################################################################################################
