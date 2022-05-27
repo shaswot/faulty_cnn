@@ -19,7 +19,7 @@
 *.dat
 
 # Logfiles
-**/logfiles
+**/pylogfiles
 **/pdfs
 **/logging
 

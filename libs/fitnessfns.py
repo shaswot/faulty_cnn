@@ -169,7 +169,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         ## multiply with shuffled weight matrix
         BLOCK_HEIGHT = N_THREADS_PER_BLOCK # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
-        BATCH_BLOCK_SIZE = 1 # in reality, inference is always one image at a time. 
+        BATCH_BLOCK_SIZE = 32 # in reality, inference is always one image at a time. 
                              # However, here we are using batch inference here for speedup
         shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
                                                    fc_0_in,
@@ -220,7 +220,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         ## multiply with shuffled weight matrix
         BLOCK_HEIGHT = N_THREADS_PER_BLOCK # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
-        BATCH_BLOCK_SIZE = 1 # inference is always one image at a time.
+        BATCH_BLOCK_SIZE = 32 # inference is always one image at a time.
         shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
                                                    fc_1_in,
                                                    BLOCK_HEIGHT, 
@@ -270,7 +270,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         ## multiply with shuffled weight matrix
         BLOCK_HEIGHT = N_THREADS_PER_BLOCK # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
-        BATCH_BLOCK_SIZE = 1 # inference is always one image at a time.
+        BATCH_BLOCK_SIZE = 32 # inference is always one image at a time.
         shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
                                                    fc_2_in,
                                                    BLOCK_HEIGHT, 
@@ -320,7 +320,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         ## multiply with shuffled weight matrix
         BLOCK_HEIGHT = NO_OF_CLASSES # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
-        BATCH_BLOCK_SIZE = 1 # inference is always one image at a time.
+        BATCH_BLOCK_SIZE = 32 # inference is always one image at a time.
         shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
                                                    op_layer_in,
                                                    BLOCK_HEIGHT, 
@@ -400,4 +400,40 @@ def ff_lenet_3hidden_ERRexpbitflips(model,
         misses = misses + b_misses
 
     return (tot_images-misses)/tot_images
+##############################################################################################################################
+def eval_lenet_3hidden_ERRexpbitflips(model,
+                                    error_profile_c0,
+                                    error_profile_h0,
+                                    error_profile_h1,
+                                    error_profile_h2,
+                                    error_profile_op,
+                                    ERR_PARAM,
+                                    clayer0_shuffle_order,
+                                    hlayer0_shuffle_order,
+                                    hlayer1_shuffle_order,
+                                    hlayer2_shuffle_order,
+                                    oplayer_shuffle_order,
+                                    test_set):
+    N_RUNS_PER_SHUFF_ORDER = 3
+    BATCHSIZE = 128
+    shuffle_result = []
+    # Evaluate N_RUNS_PER_SHUFF_ORDER times for each shuffle order
+    for i in range(N_RUNS_PER_SHUFF_ORDER):
+        accuracy = ff_lenet_3hidden_ERRexpbitflips(model,
+                                                    error_profile_c0,
+                                                    error_profile_h0,
+                                                    error_profile_h1,
+                                                    error_profile_h2,
+                                                    error_profile_op,
+                                                    ERR_PARAM,
+                                                    clayer0_shuffle_order,
+                                                    hlayer0_shuffle_order,
+                                                    hlayer1_shuffle_order,
+                                                    hlayer2_shuffle_order,
+                                                    oplayer_shuffle_order,
+                                                    test_set,
+                                                    BATCHSIZE).numpy()
+        shuffle_result.append(accuracy)
+    return (np.mean(shuffle_result), 
+            np.std(shuffle_result))    
 ##############################################################################################################################

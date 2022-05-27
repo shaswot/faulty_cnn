@@ -32,9 +32,10 @@ def create_model(layer_widths, seed):
     model.add(keras.layers.Conv2D(32, (4, 4), 
                                   activation='relu', 
                                   kernel_initializer = kernel_initializer,
-                                  input_shape=(image_x_size, image_y_size, 1)))
-    model.add(keras.layers.MaxPooling2D((2, 2)))
-    model.add(keras.layers.Flatten())
+                                  input_shape=(image_x_size, image_y_size, 1),
+                                  name="conv2d"))
+    model.add(keras.layers.MaxPooling2D((2, 2), name="pool2d"))
+    model.add(keras.layers.Flatten(name="flatten"))
     for idx in range(len(layer_widths)):
         model.add(keras.layers.Dense(layer_widths[idx], 
                                      activation="relu", 
