@@ -77,6 +77,16 @@ def matmul_ERRexpbitflips(tf_mat_A,
         ## Filter out only those values where error_mask is TRUE
         corrupt_mask = tf.cast(inv_error_mask_layout, dtype=tf.int32) * tf.cast(corrupt_bitpos_mask, dtype=tf.int32)
         
+        # Masks to truncate last bits of mantissa
+        all_ones = tf.ones_like(error_mask_layout) * 0xFFFF_FFFF
+        all_ones = tf.cast(all_ones, dtype=tf.int32)
+        # TF32 [1+8+10]
+        truncate_size_tf32 = 13 # truncate (zero out) the last 13 bits of FP32 number. Mantissa size is 23-13 = 10
+        truncate_mask_tf32 = tf.cast(inv_error_mask_layout, dtype=tf.int32) * tf.cast(tf.bitwise.left_shift(all_ones, truncate_size_tf32), dtype=tf.int32)
+        # BF16 [1+8+7]
+        truncate_size_bf16 = 16 # truncate (zero out) the last 16 bits of FP32 number. Mantissa size is 23-16 = 7
+        truncate_mask_bf16 = tf.cast(tf.bitwise.left_shift(all_ones, truncate_size_bf16), dtype=tf.int32)
+                
         # APPLY ERROR MASK TO THE einsum RESULT
         bitcast_to_int32 = tf.bitcast(tf_ein_result, tf.int32)
         if ERR_PARAM_TF == -1: # flip bit
@@ -85,6 +95,16 @@ def matmul_ERRexpbitflips(tf_mat_A,
             flipbits = tf.bitwise.bitwise_or(bitcast_to_int32, corrupt_mask)
         elif ERR_PARAM_TF == 0: # set to 0
             flipbits = tf.bitwise.bitwise_and(bitcast_to_int32, tf.bitwise.invert(corrupt_mask))
+        elif ERR_PARAM_TF == 2: # truncate to TF32
+            dont_truncate = bitcast_to_int32 * tf.cast(error_mask_layout,     dtype=tf.int32) # 0 -> error present, 1 -> no error
+            to_truncate   = bitcast_to_int32 * tf.cast(inv_error_mask_layout, dtype=tf.int32) # 1 -> error present, 0 -> no error
+            truncated     = tf.bitwise.bitwise_and(to_truncate, truncate_mask_tf32)
+            flipbits      = dont_truncate + truncated
+        elif ERR_PARAM_TF == 3: # truncate to TF32
+            dont_truncate = bitcast_to_int32 * tf.cast(error_mask_layout,     dtype=tf.int32) # 0 -> error present, 1 -> no error
+            to_truncate   = bitcast_to_int32 * tf.cast(inv_error_mask_layout, dtype=tf.int32) # 1 -> error present, 0 -> no error
+            truncated     = tf.bitwise.bitwise_and(to_truncate, truncate_mask_bf16)
+            flipbits      = dont_truncate + truncated
         else:
             # warnings.warn('ERR_PARAM_TF should have value 0, 1, or -1. Continuing without flipping bits')
             flipbits = bitcast_to_int32
