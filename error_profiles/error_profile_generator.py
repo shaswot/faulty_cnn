@@ -11,7 +11,10 @@ if PROJ_ROOT not in sys.path:
 
 from libs.constants import error_seeds
 
-MAX_FAULT_PROB_LIST = [1E-3, 2E-3, 5E-3, 10E-3, 20E-3, 50E-3, 99E-3]
+MAX_FAULT_PROB_LIST = [1E-3, 2E-3, 5E-3, 
+                       10E-3, 20E-3, 50E-3, 99E-3,
+                       100E-3, 200E-3, 500E-3, 999E-3]
+
 
 # GPU with many SM Blocks (faulty)
 # No SM blocks are repeated during one matmul
