@@ -1,17 +1,7 @@
 import subprocess
-import os
-import sys
-import git
-import pathlib
 
-PROJ_ROOT_PATH = pathlib.Path(git.Repo('.', search_parent_directories=True).working_tree_dir)
-PROJ_ROOT =  str(PROJ_ROOT_PATH)
-if PROJ_ROOT not in sys.path:
-    sys.path.append(PROJ_ROOT)
-    
-
-model_instance = "mnist32-cnn_1024_256_64-1023"
-error_profile  = "LIM_01-3987"
+experiment = "mnist32-cnn_1024_256_64-1023--LIM_01-2188"
+model_instance, error_profile = experiment.split("--")
 
 exp_script_list = [ 
                     "all-RowShuffle_c0layer_lenet_3hidden_ERRexpbitflips_-1",
