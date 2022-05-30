@@ -45,6 +45,7 @@
 **/*.job
 **/*.d00*
 **/*.sh.o*
+**/wisteria_scripts
 
 # Keras
 .keras/
