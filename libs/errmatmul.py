@@ -100,7 +100,7 @@ def matmul_ERRexpbitflips(tf_mat_A,
             to_truncate   = bitcast_to_int32 * tf.cast(inv_error_mask_layout, dtype=tf.int32) # 1 -> error present, 0 -> no error
             truncated     = tf.bitwise.bitwise_and(to_truncate, truncate_mask_tf32)
             flipbits      = dont_truncate + truncated
-        elif ERR_PARAM_TF == 3: # truncate to TF32
+        elif ERR_PARAM_TF == 3: # truncate to BF16
             dont_truncate = bitcast_to_int32 * tf.cast(error_mask_layout,     dtype=tf.int32) # 0 -> error present, 1 -> no error
             to_truncate   = bitcast_to_int32 * tf.cast(inv_error_mask_layout, dtype=tf.int32) # 1 -> error present, 0 -> no error
             truncated     = tf.bitwise.bitwise_and(to_truncate, truncate_mask_bf16)
