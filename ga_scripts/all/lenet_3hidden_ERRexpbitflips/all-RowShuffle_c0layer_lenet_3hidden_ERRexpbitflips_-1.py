@@ -85,7 +85,7 @@ test_set = (all_images[-12_80:], all_labels[-12_80:])
 K = 3
 
 POP_SIZE = 20
-N_GENERATIONS = 50
+N_GENERATIONS = 100
 
 CR = 0.6
 MR = 0.2
