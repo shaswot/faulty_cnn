@@ -96,7 +96,7 @@ print("Crossover Rate: ", CR)
 print("Mutation Rate: ", MR)
 
 # Run GA experiment
-from libs.ga.ga_experiments import RowShuffle_h2layer_lenet_3hidden_ERRexpbitflips
+from libs.ga.ga_experiments import RowShuffle_oplayer_lenet_3hidden_ERRexpbitflips
 
 error_param = 2 # TF32 truncation
 optim_type = "all" # (q1, q2, q3, q4)
