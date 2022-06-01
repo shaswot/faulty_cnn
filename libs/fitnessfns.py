@@ -32,17 +32,17 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     """
        
     # get weights and biases from model
-    conv2d_kernels, conv2d_biases = model.get_layer("conv2d").weights
-    fc_0_weights, fc_0_biases = model.get_layer("fc_0").weights
-    fc_1_weights, fc_1_biases = model.get_layer("fc_1").weights
-    fc_2_weights, fc_2_biases = model.get_layer("fc_2").weights
-    op_layer_weights, op_layer_biases = model.get_layer("op_layer").weights
+    c0_kernels, c0_biases = model.get_layer("c0").weights
+    h0_weights, h0_biases = model.get_layer("h0").weights
+    h1_weights, h1_biases = model.get_layer("h1").weights
+    h2_weights, h2_biases = model.get_layer("h2").weights
+    op_weights, op_biases = model.get_layer("op").weights
     
     #####################################################################################
     # L0: CONVOLUTION LAYER
     ## L0.A: Get dimension values
     #### kernel height, kernel width, no of channels in input image, no of filter kernels 
-    kr_ht, kr_wt, no_ch, no_kr = conv2d_kernels.shape
+    kr_ht, kr_wt, no_ch, no_kr = c0_kernels.shape
 
     no_im = b_images.shape[0]
     no_ch = b_images.shape[-1]
@@ -74,7 +74,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
 
     ## L0.C: Flatten filter kernels
     ### first reorder kernels by no. of output-kernels
-    flat_kernels = tf.transpose(conv2d_kernels, perm=(3,0,1,2))
+    flat_kernels = tf.transpose(c0_kernels, perm=(3,0,1,2))
     ### then reshape to required matrix shape
     flat_kernels = tf.reshape(flat_kernels, (no_kr, kr_ht*kr_wt*no_ch))
     
@@ -134,7 +134,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     conv_out = tf.reshape(conv_out, (no_im, y_ht,y_wt, no_kr)) # reshape to filter output shape
 
     ## Add bias
-    conv_out = tf.nn.bias_add(conv_out, conv2d_biases)
+    conv_out = tf.nn.bias_add(conv_out, c0_biases)
     ## ReLU
     conv_out = tf.nn.relu(conv_out)
     #####################################################################################
@@ -153,16 +153,16 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     
     # L3: FC0
     ## tranpose input vector
-    fc_0_in = tf.transpose(flat_out, perm=[1,0]) #[flat_vec_size, batch_size]
+    h0_in = tf.transpose(flat_out, perm=[1,0]) #[flat_vec_size, batch_size]
     ## transpose weight matrices
-    fc_0_weights_tr = tf.transpose(fc_0_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
+    h0_weights_tr = tf.transpose(h0_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
 
     ## is shuffling required
     if shuffle_order_h0 is not None:
         ## shuffle weight matrix
-        shuffled_weights = tf.gather(fc_0_weights_tr, shuffle_order_h0)
+        shuffled_weights = tf.gather(h0_weights_tr, shuffle_order_h0)
     else:
-        shuffled_weights = fc_0_weights_tr
+        shuffled_weights = h0_weights_tr
         
     ## is error injection required
     if error_profile_h0 is not None:
@@ -172,14 +172,14 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         BATCH_BLOCK_SIZE = 32 # in reality, inference is always one image at a time. 
                              # However, here we are using batch inference here for speedup
         shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
-                                                   fc_0_in,
+                                                   h0_in,
                                                    BLOCK_HEIGHT, 
                                                    BLOCK_WIDTH, 
                                                    BATCH_BLOCK_SIZE, 
                                                    ERR_PROFILE=error_profile_h0,
                                                    ERR_PARAM_TF=ERR_PARAM_TF)
     else:
-        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, fc_0_in)
+        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, h0_in)
         
     ## was the weight matrix shuffled
     if shuffle_order_h0 is not None:
@@ -188,32 +188,32 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         updates = tf.range(tf.size(indices))
         shape = shuffle_order_h0.shape
         scatter = tf.scatter_nd(indices, updates, shape)
-        fc_0_mult_out = tf.gather(shuffled_mult_out, scatter)
+        h0_mult_out = tf.gather(shuffled_mult_out, scatter)
     else:
-        fc_0_mult_out = shuffled_mult_out
+        h0_mult_out = shuffled_mult_out
         
 
     # Add bias
-    fc_0_bout = tf.add(fc_0_mult_out, tf.expand_dims(fc_0_biases,axis=1))
+    h0_bout = tf.add(h0_mult_out, tf.expand_dims(h0_biases,axis=1))
     # RelU
-    fc_0_out = tf.nn.relu(fc_0_bout)
-    # fc_0_out needs to be transposed again in fc_1_in
-    # so although fc_0_out shape is not "standard", we output it as it is
+    h0_out = tf.nn.relu(h0_bout)
+    # h0_out needs to be transposed again in h1_in
+    # so although h0_out shape is not "standard", we output it as it is
     
     #####################################################################################
     
     # L4: FC1
     ## tranpose input vector
-    fc_1_in = fc_0_out
+    h1_in = h0_out
     ## transpose weight matrices
-    fc_1_weights_tr = tf.transpose(fc_1_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
+    h1_weights_tr = tf.transpose(h1_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
 
     ## is shuffling required
     if shuffle_order_h1 is not None:
         ## shuffle weight matrix
-        shuffled_weights = tf.gather(fc_1_weights_tr, shuffle_order_h1)
+        shuffled_weights = tf.gather(h1_weights_tr, shuffle_order_h1)
     else:
-        shuffled_weights = fc_1_weights_tr
+        shuffled_weights = h1_weights_tr
         
     ## is error injection required
     if error_profile_h1 is not None:
@@ -222,14 +222,14 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
         BATCH_BLOCK_SIZE = 32 # inference is always one image at a time.
         shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
-                                                   fc_1_in,
+                                                   h1_in,
                                                    BLOCK_HEIGHT, 
                                                    BLOCK_WIDTH, 
                                                    BATCH_BLOCK_SIZE, 
                                                    ERR_PROFILE=error_profile_h1,
                                                    ERR_PARAM_TF=ERR_PARAM_TF)
     else:
-        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, fc_1_in)
+        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, h1_in)
         
     ## was the weight matrix shuffled
     if shuffle_order_h1 is not None:
@@ -238,32 +238,32 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         updates = tf.range(tf.size(indices))
         shape = shuffle_order_h1.shape
         scatter = tf.scatter_nd(indices, updates, shape)
-        fc_1_mult_out = tf.gather(shuffled_mult_out, scatter)
+        h1_mult_out = tf.gather(shuffled_mult_out, scatter)
     else:
-        fc_1_mult_out = shuffled_mult_out
+        h1_mult_out = shuffled_mult_out
         
 
     # Add bias
-    fc_1_bout = tf.add(fc_1_mult_out, tf.expand_dims(fc_1_biases,axis=1))
+    h1_bout = tf.add(h1_mult_out, tf.expand_dims(h1_biases,axis=1))
     # RelU
-    fc_1_out = tf.nn.relu(fc_1_bout)
-    # fc_1_out needs to be transposed again in fc_2_in
-    # so although fc_1_out shape is not "standard", we output it as it is
+    h1_out = tf.nn.relu(h1_bout)
+    # h1_out needs to be transposed again in h2_in
+    # so although h1_out shape is not "standard", we output it as it is
     
 #####################################################################################
     
     # L5: FC2
     ## tranpose input vector
-    fc_2_in = fc_1_out
+    h2_in = h1_out
     ## transpose weight matrices
-    fc_2_weights_tr = tf.transpose(fc_2_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
+    h2_weights_tr = tf.transpose(h2_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
 
     ## is shuffling required
     if shuffle_order_h2 is not None:
         ## shuffle weight matrix
-        shuffled_weights = tf.gather(fc_2_weights_tr, shuffle_order_h2)
+        shuffled_weights = tf.gather(h2_weights_tr, shuffle_order_h2)
     else:
-        shuffled_weights = fc_2_weights_tr
+        shuffled_weights = h2_weights_tr
         
     ## is error injection required
     if error_profile_h2 is not None:
@@ -272,14 +272,14 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
         BATCH_BLOCK_SIZE = 32 # inference is always one image at a time.
         shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
-                                                   fc_2_in,
+                                                   h2_in,
                                                    BLOCK_HEIGHT, 
                                                    BLOCK_WIDTH, 
                                                    BATCH_BLOCK_SIZE, 
                                                    ERR_PROFILE=error_profile_h2,
                                                    ERR_PARAM_TF=ERR_PARAM_TF)
     else:
-        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, fc_2_in)
+        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, h2_in)
         
     ## was the weight matrix shuffled
     if shuffle_order_h2 is not None:
@@ -288,32 +288,32 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         updates = tf.range(tf.size(indices))
         shape = shuffle_order_h2.shape
         scatter = tf.scatter_nd(indices, updates, shape)
-        fc_2_mult_out = tf.gather(shuffled_mult_out, scatter)
+        h2_mult_out = tf.gather(shuffled_mult_out, scatter)
     else:
-        fc_2_mult_out = shuffled_mult_out
+        h2_mult_out = shuffled_mult_out
         
 
     # Add bias
-    fc_2_bout = tf.add(fc_2_mult_out, tf.expand_dims(fc_2_biases,axis=1))
+    h2_bout = tf.add(h2_mult_out, tf.expand_dims(h2_biases,axis=1))
     # RelU
-    fc_2_out = tf.nn.relu(fc_2_bout)
-    # fc_1_out needs to be transposed again in fc_2_in
-    # so although fc_1_out shape is not "standard", we output it as it is
+    h2_out = tf.nn.relu(h2_bout)
+    # h1_out needs to be transposed again in h2_in
+    # so although h1_out shape is not "standard", we output it as it is
     
 #####################################################################################
     
     # L6: OUTPUT LAYER
     ## tranpose input vector
-    op_layer_in = fc_2_out
+    op_in = h2_out
     ## transpose weight matrices
-    op_layer_weights_tr = tf.transpose(op_layer_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
+    op_weights_tr = tf.transpose(op_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
 
     ## is shuffling required
     if shuffle_order_op is not None:
         ## shuffle weight matrix
-        shuffled_weights = tf.gather(op_layer_weights_tr, shuffle_order_op)
+        shuffled_weights = tf.gather(op_weights_tr, shuffle_order_op)
     else:
-        shuffled_weights = op_layer_weights_tr
+        shuffled_weights = op_weights_tr
         
     ## is error injection required
     if error_profile_op is not None:
@@ -322,14 +322,14 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
         BATCH_BLOCK_SIZE = 32 # inference is always one image at a time.
         shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
-                                                   op_layer_in,
+                                                   op_in,
                                                    BLOCK_HEIGHT, 
                                                    BLOCK_WIDTH, 
                                                    BATCH_BLOCK_SIZE, 
                                                    ERR_PROFILE=error_profile_op,
                                                    ERR_PARAM_TF=ERR_PARAM_TF)
     else:
-        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, op_layer_in)
+        shuffled_mult_out = tf.linalg.matmul(shuffled_weights, op_in)
         
     ## was the weight matrix shuffled
     if shuffle_order_op is not None:
@@ -338,17 +338,17 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         updates = tf.range(tf.size(indices))
         shape = shuffle_order_op.shape
         scatter = tf.scatter_nd(indices, updates, shape)
-        op_layer_mult_out = tf.gather(shuffled_mult_out, scatter)
+        op_mult_out = tf.gather(shuffled_mult_out, scatter)
     else:
-        op_layer_mult_out = shuffled_mult_out
+        op_mult_out = shuffled_mult_out
         
 
     # Add bias
-    op_layer_bout = tf.add(op_layer_mult_out, tf.expand_dims(op_layer_biases,axis=1))
+    op_bout = tf.add(op_mult_out, tf.expand_dims(op_biases,axis=1))
     # Softmax
-    op_layer_out = tf.nn.softmax(op_layer_bout, axis=0)
+    op_out = tf.nn.softmax(op_bout, axis=0)
     # Tranpose to standard order
-    class_scores = tf.transpose(op_layer_out, perm=[1,0])
+    class_scores = tf.transpose(op_out, perm=[1,0])
     
     # Get predictions
     predictions = tf.math.argmax(class_scores, axis=1)
