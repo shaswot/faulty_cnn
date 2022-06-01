@@ -16,11 +16,11 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
                                         error_profile_h2,
                                         error_profile_op,
                                         ERR_PARAM_TF,
-                                        clayer0_shuffle_order,
-                                        hlayer0_shuffle_order,
-                                        hlayer1_shuffle_order,
-                                        hlayer2_shuffle_order,
-                                        oplayer_shuffle_order):
+                                        shuffle_order_c0,
+                                        shuffle_order_h0,
+                                        shuffle_order_h1,
+                                        shuffle_order_h2,
+                                        shuffle_order_op):
     """
         Infer a batch of images/labels using given model, error_profile and shuffle order
         Applies only to 
@@ -97,9 +97,9 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
                                         mode="CONSTANT", 
                                         constant_values=0.0)
         # is shuffling required
-        if clayer0_shuffle_order is not None:
+        if shuffle_order_c0 is not None:
             # shuffle filter order matrix
-            shuffled_kernels = tf.gather(flat_kernels, clayer0_shuffle_order)
+            shuffled_kernels = tf.gather(flat_kernels, shuffle_order_c0)
         else:
             shuffled_kernels = flat_kernels
         
@@ -117,11 +117,11 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
             shuffled_conv_mul_out = tf.matmul(shuffled_kernels, padded_single_im_patch)[:,:-no_cols_to_pad]
         
         # was the kernel matrix shuffled ?
-        if clayer0_shuffle_order is not None:
+        if shuffle_order_c0 is not None:
             # unshuffle conv_out
-            indices = tf.expand_dims(clayer0_shuffle_order, axis=1)
+            indices = tf.expand_dims(shuffle_order_c0, axis=1)
             updates = tf.range(tf.size(indices))
-            shape = clayer0_shuffle_order.shape
+            shape = shuffle_order_c0.shape
             scatter = tf.scatter_nd(indices, updates, shape)
             conv_mul_out = tf.gather(shuffled_conv_mul_out, scatter)
         else:
@@ -158,9 +158,9 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     fc_0_weights_tr = tf.transpose(fc_0_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
 
     ## is shuffling required
-    if hlayer0_shuffle_order is not None:
+    if shuffle_order_h0 is not None:
         ## shuffle weight matrix
-        shuffled_weights = tf.gather(fc_0_weights_tr, hlayer0_shuffle_order)
+        shuffled_weights = tf.gather(fc_0_weights_tr, shuffle_order_h0)
     else:
         shuffled_weights = fc_0_weights_tr
         
@@ -182,11 +182,11 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         shuffled_mult_out = tf.linalg.matmul(shuffled_weights, fc_0_in)
         
     ## was the weight matrix shuffled
-    if hlayer0_shuffle_order is not None:
+    if shuffle_order_h0 is not None:
         # unshuffle mult_out
-        indices = tf.expand_dims(hlayer0_shuffle_order, axis=1)
+        indices = tf.expand_dims(shuffle_order_h0, axis=1)
         updates = tf.range(tf.size(indices))
-        shape = hlayer0_shuffle_order.shape
+        shape = shuffle_order_h0.shape
         scatter = tf.scatter_nd(indices, updates, shape)
         fc_0_mult_out = tf.gather(shuffled_mult_out, scatter)
     else:
@@ -209,9 +209,9 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     fc_1_weights_tr = tf.transpose(fc_1_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
 
     ## is shuffling required
-    if hlayer1_shuffle_order is not None:
+    if shuffle_order_h1 is not None:
         ## shuffle weight matrix
-        shuffled_weights = tf.gather(fc_1_weights_tr, hlayer1_shuffle_order)
+        shuffled_weights = tf.gather(fc_1_weights_tr, shuffle_order_h1)
     else:
         shuffled_weights = fc_1_weights_tr
         
@@ -232,11 +232,11 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         shuffled_mult_out = tf.linalg.matmul(shuffled_weights, fc_1_in)
         
     ## was the weight matrix shuffled
-    if hlayer1_shuffle_order is not None:
+    if shuffle_order_h1 is not None:
         # unshuffle mult_out
-        indices = tf.expand_dims(hlayer1_shuffle_order, axis=1)
+        indices = tf.expand_dims(shuffle_order_h1, axis=1)
         updates = tf.range(tf.size(indices))
-        shape = hlayer1_shuffle_order.shape
+        shape = shuffle_order_h1.shape
         scatter = tf.scatter_nd(indices, updates, shape)
         fc_1_mult_out = tf.gather(shuffled_mult_out, scatter)
     else:
@@ -259,9 +259,9 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     fc_2_weights_tr = tf.transpose(fc_2_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
 
     ## is shuffling required
-    if hlayer2_shuffle_order is not None:
+    if shuffle_order_h2 is not None:
         ## shuffle weight matrix
-        shuffled_weights = tf.gather(fc_2_weights_tr, hlayer2_shuffle_order)
+        shuffled_weights = tf.gather(fc_2_weights_tr, shuffle_order_h2)
     else:
         shuffled_weights = fc_2_weights_tr
         
@@ -282,11 +282,11 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         shuffled_mult_out = tf.linalg.matmul(shuffled_weights, fc_2_in)
         
     ## was the weight matrix shuffled
-    if hlayer2_shuffle_order is not None:
+    if shuffle_order_h2 is not None:
         # unshuffle mult_out
-        indices = tf.expand_dims(hlayer2_shuffle_order, axis=1)
+        indices = tf.expand_dims(shuffle_order_h2, axis=1)
         updates = tf.range(tf.size(indices))
-        shape = hlayer2_shuffle_order.shape
+        shape = shuffle_order_h2.shape
         scatter = tf.scatter_nd(indices, updates, shape)
         fc_2_mult_out = tf.gather(shuffled_mult_out, scatter)
     else:
@@ -309,9 +309,9 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     op_layer_weights_tr = tf.transpose(op_layer_weights, perm=[1,0]) #[no_of_weights, flat_vec_size]
 
     ## is shuffling required
-    if oplayer_shuffle_order is not None:
+    if shuffle_order_op is not None:
         ## shuffle weight matrix
-        shuffled_weights = tf.gather(op_layer_weights_tr, oplayer_shuffle_order)
+        shuffled_weights = tf.gather(op_layer_weights_tr, shuffle_order_op)
     else:
         shuffled_weights = op_layer_weights_tr
         
@@ -332,11 +332,11 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         shuffled_mult_out = tf.linalg.matmul(shuffled_weights, op_layer_in)
         
     ## was the weight matrix shuffled
-    if oplayer_shuffle_order is not None:
+    if shuffle_order_op is not None:
         # unshuffle mult_out
-        indices = tf.expand_dims(oplayer_shuffle_order, axis=1)
+        indices = tf.expand_dims(shuffle_order_op, axis=1)
         updates = tf.range(tf.size(indices))
-        shape = oplayer_shuffle_order.shape
+        shape = shuffle_order_op.shape
         scatter = tf.scatter_nd(indices, updates, shape)
         op_layer_mult_out = tf.gather(shuffled_mult_out, scatter)
     else:
@@ -363,11 +363,11 @@ def ff_lenet_3hidden_ERRexpbitflips(model,
                                     error_profile_h2,
                                     error_profile_op,
                                     ERR_PARAM,
-                                    clayer0_shuffle_order,
-                                    hlayer0_shuffle_order,
-                                    hlayer1_shuffle_order,
-                                    hlayer2_shuffle_order,
-                                    oplayer_shuffle_order,
+                                    shuffle_order_c0,
+                                    shuffle_order_h0,
+                                    shuffle_order_h1,
+                                    shuffle_order_h2,
+                                    shuffle_order_op,
                                     test_set,
                                     batchsize):
     
@@ -391,11 +391,11 @@ def ff_lenet_3hidden_ERRexpbitflips(model,
                                                         error_profile_h2,
                                                         error_profile_op,
                                                         ERR_PARAM_TF,
-                                                        clayer0_shuffle_order,
-                                                        hlayer0_shuffle_order,
-                                                        hlayer1_shuffle_order,
-                                                        hlayer2_shuffle_order,
-                                                        oplayer_shuffle_order)
+                                                        shuffle_order_c0,
+                                                        shuffle_order_h0,
+                                                        shuffle_order_h1,
+                                                        shuffle_order_h2,
+                                                        shuffle_order_op)
         
         misses = misses + b_misses
 
@@ -408,11 +408,11 @@ def eval_lenet_3hidden_ERRexpbitflips(model,
                                     error_profile_h2,
                                     error_profile_op,
                                     ERR_PARAM,
-                                    clayer0_shuffle_order,
-                                    hlayer0_shuffle_order,
-                                    hlayer1_shuffle_order,
-                                    hlayer2_shuffle_order,
-                                    oplayer_shuffle_order,
+                                    shuffle_order_c0,
+                                    shuffle_order_h0,
+                                    shuffle_order_h1,
+                                    shuffle_order_h2,
+                                    shuffle_order_op,
                                     test_set):
     N_RUNS_PER_SHUFF_ORDER = 3
     BATCHSIZE = 128
@@ -426,11 +426,11 @@ def eval_lenet_3hidden_ERRexpbitflips(model,
                                                     error_profile_h2,
                                                     error_profile_op,
                                                     ERR_PARAM,
-                                                    clayer0_shuffle_order,
-                                                    hlayer0_shuffle_order,
-                                                    hlayer1_shuffle_order,
-                                                    hlayer2_shuffle_order,
-                                                    oplayer_shuffle_order,
+                                                    shuffle_order_c0,
+                                                    shuffle_order_h0,
+                                                    shuffle_order_h1,
+                                                    shuffle_order_h2,
+                                                    shuffle_order_op,
                                                     test_set,
                                                     BATCHSIZE).numpy()
         shuffle_result.append(accuracy)
