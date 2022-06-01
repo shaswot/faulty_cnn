@@ -33,15 +33,15 @@ def create_model(layer_widths, seed):
                                   activation='relu', 
                                   kernel_initializer = kernel_initializer,
                                   input_shape=(image_x_size, image_y_size, 1),
-                                  name="conv2d"))
+                                  name="c0"))
     model.add(keras.layers.MaxPooling2D((2, 2), name="pool2d"))
     model.add(keras.layers.Flatten(name="flatten"))
     for idx in range(len(layer_widths)):
         model.add(keras.layers.Dense(layer_widths[idx], 
                                      activation="relu", 
                                      kernel_initializer = kernel_initializer,
-                                     name="fc_"+str(idx)))
-    model.add(keras.layers.Dense(10, activation=tf.nn.softmax, name="op_layer"))
+                                     name="h"+str(idx)))
+    model.add(keras.layers.Dense(10, activation=tf.nn.softmax, name="op"))
     return model
 ############################################################################################
 def train_mnist32(model_instance, show_summary=False):
@@ -103,7 +103,7 @@ def train_mnist32(model_instance, show_summary=False):
               validation_data=(test_images, test_labels))
     
     # Folder to save models (create if necessary)
-    model_folder = pathlib.Path(PROJ_ROOT_PATH / "models" / model_meta_type / model_type)
+    model_folder = pathlib.Path(PROJ_ROOT_PATH / "models" / model_type)
     pathlib.Path(model_folder).mkdir(parents=True, exist_ok=True)
 
     # save model file
@@ -114,43 +114,49 @@ def train_mnist32(model_instance, show_summary=False):
     return model_file
     
 #############################################################################################
-def test_mnist32(model_file, show_summary=False):
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    if gpus:
-        try:
-            for gpu in gpus:
-                tf.config.experimental.set_memory_growth(gpu, True)
-        except RuntimeError as e:
-            print(e)
+# The meaning of testing a model is quite ambiguous.
+# What does the test accuracy represent?
+# Is it 
+# a. the ability to generalize classification over ONLY unseen images (i.e., test set) ?
+# b. the ability to recognize and classify over both seen and unseen images (i.e., test set + train set )?
+
+# def test_mnist32(model_file, show_summary=False):
+#     gpus = tf.config.experimental.list_physical_devices('GPU')
+#     if gpus:
+#         try:
+#             for gpu in gpus:
+#                 tf.config.experimental.set_memory_growth(gpu, True)
+#         except RuntimeError as e:
+#             print(e)
             
-    # Prepare dataset
-    # Combine test and train images together into one dataset
-    DATASET_PATH = str(pathlib.Path(PROJ_ROOT_PATH / "datasets" / "mnist.npz" ))
-    (train_images, train_labels), (test_images, test_labels) = mnist.load_data(path=DATASET_PATH)
-    train_images = train_images.astype(np.float32) / 255.0
-    test_images = test_images.astype(np.float32) / 255.0  
+#     # Prepare dataset
+#     # Combine test and train images together into one dataset
+#     DATASET_PATH = str(pathlib.Path(PROJ_ROOT_PATH / "datasets" / "mnist.npz" ))
+#     (train_images, train_labels), (test_images, test_labels) = mnist.load_data(path=DATASET_PATH)
+#     train_images = train_images.astype(np.float32) / 255.0
+#     test_images = test_images.astype(np.float32) / 255.0  
 
-    all_images =np.concatenate([train_images, test_images], axis=0)
-    all_labels =np.concatenate([train_labels, test_labels], axis=0)
-    all_images = np.expand_dims(all_images, axis=-1)
+#     all_images =np.concatenate([train_images, test_images], axis=0)
+#     all_labels =np.concatenate([train_labels, test_labels], axis=0)
+#     all_images = np.expand_dims(all_images, axis=-1)
     
-    # resize the input shape , i.e. old shape: 28, new shape: 32
-    image_x_size = 32
-    image_y_size = 32
-    all_images = tf.image.resize(all_images, [image_x_size, image_y_size]) 
+#     # resize the input shape , i.e. old shape: 28, new shape: 32
+#     image_x_size = 32
+#     image_y_size = 32
+#     all_images = tf.image.resize(all_images, [image_x_size, image_y_size]) 
 
-    # Load model
-    model = tf.keras.models.load_model(model_file)
-    if show_summary:
-        model.summary()
+#     # Load model
+#     model = tf.keras.models.load_model(model_file)
+#     if show_summary:
+#         model.summary()
 
-    # Evaluate model
-    y_pred = model.predict(all_images) # Predict encoded label as 2 => [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
-    Y_pred = np.argmax(y_pred, 1) # Decode Predicted labels
+#     # Evaluate model
+#     y_pred = model.predict(all_images) # Predict encoded label as 2 => [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+#     Y_pred = np.argmax(y_pred, 1) # Decode Predicted labels
 
-    accuracy = accuracy_score(y_true=all_labels, y_pred=Y_pred)
-    conf_matrix = confusion_matrix(y_true=all_labels, y_pred=Y_pred) 
+#     accuracy = accuracy_score(y_true=all_labels, y_pred=Y_pred)
+#     conf_matrix = confusion_matrix(y_true=all_labels, y_pred=Y_pred) 
           
-    return [accuracy, conf_matrix]
+#     return [accuracy, conf_matrix]
 
-#############################################################################################
+# #############################################################################################
