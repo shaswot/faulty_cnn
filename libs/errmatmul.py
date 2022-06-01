@@ -7,13 +7,13 @@ N_THREADS_PER_BLOCK = 32
 
 ###############################################################################################################################
 @tf.function
-def matmul_ERRexpbitflips(tf_mat_A, 
-                       tf_mat_B,
-                       BLOCK_HEIGHT, 
-                       BLOCK_WIDTH, 
-                       BATCH_BLOCK_SIZE, 
-                       ERR_PROFILE=None,
-                       ERR_PARAM_TF=None,): # 0: flip-to-zero, 1: flip-to-1, -1: flip-bit, 2: TF32 mantissa truncation, 3: BF16 mantissa truncation
+def matmul_ERR(tf_mat_A, 
+               tf_mat_B,
+               BLOCK_HEIGHT, 
+               BLOCK_WIDTH, 
+               BATCH_BLOCK_SIZE, 
+               ERR_PROFILE=None,
+               ERR_PARAM_TF=None,): # 0: flip-to-zero, 1: flip-to-1, -1: flip-bit, 2: TF32 mantissa truncation, 3: BF16 mantissa truncation
     
     """ 
         Bits of the exponent in FP32 representation are flipped for ERR 0,1,-1
