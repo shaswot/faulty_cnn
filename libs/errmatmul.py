@@ -14,10 +14,11 @@ def matmul_ERRexpbitflips(tf_mat_A,
                        BLOCK_WIDTH, 
                        BATCH_BLOCK_SIZE, 
                        ERR_PROFILE=None,
-                       ERR_PARAM_TF=None,): # 0: set-to-zero, 1: set-to-1, -1: flip-bit
+                       ERR_PARAM_TF=None,): # 0: flip-to-zero, 1: flip-to-1, -1: flip-bit, 2: TF32 mantissa truncation, 3: BF16 mantissa truncation
     
     """ 
-        Bits of the exponent in FP32 representation are flipped.
+        Bits of the exponent in FP32 representation are flipped for ERR 0,1,-1
+        LSBs of the mantissa in FP32 are truncated for ERR 2, 3
         
         Assuming the shape dims of tf_mat_A are perfect multiples of BLOCK_HEIGHT and BLOCK_WIDTH.
         BLOCK_HEIGHT <= no. of rows of tf_mat_A
