@@ -68,6 +68,7 @@ class StatisticalFitness(namedtuple('StatisticalFitness', ['mean', 'std'])):
 #########################################################################
 
 # Shuffling rows of convolutional layer
+class INDV_mnist32_cnn_3hidden_c0layer(BaseIndividual):
 class INDV_c0layer_lenet_3hidden_ERRexpbitflips(BaseIndividual):
 
     @classmethod
@@ -204,6 +205,7 @@ class INDV_c0layer_lenet_3hidden_ERRexpbitflips(BaseIndividual):
 #########################################################################
 
 # Shuffling rows of fc_2 layer
+class INDV_mnist32_cnn_3hidden_h2layer(BaseIndividual):
 class INDV_h2layer_lenet_3hidden_ERRexpbitflips(BaseIndividual):
 
     @classmethod
@@ -340,6 +342,7 @@ class INDV_h2layer_lenet_3hidden_ERRexpbitflips(BaseIndividual):
 #########################################################################
 
 # Shuffling rows of output layer
+class INDV_mnist32_cnn_3hidden_oplayer(BaseIndividual):
 class INDV_oplayer_lenet_3hidden_ERRexpbitflips(BaseIndividual):
 
     @classmethod
