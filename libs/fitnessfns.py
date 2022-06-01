@@ -3,24 +3,25 @@ import numpy as np
 import warnings
 
 # CONSTANTS
-from libs.errmatmul import matmul_ERRexpbitflips, N_THREADS_PER_BLOCK, NO_OF_CLASSES
+from libs.errmatmul import matmul_ERR, N_THREADS_PER_BLOCK
+NO_OF_CLASSES = 10
 
-# Batchwise accuracy evaluation of LeNet CNN model using matmul_ERRexpbitflips
+# Batchwise accuracy evaluation of LeNet CNN model using matmul_ERR
 @tf.function
-def batch_lenet_3hidden_ERRexpbitflips( b_images,
-                                        b_labels,
-                                        model,
-                                        error_profile_c0,
-                                        error_profile_h0,
-                                        error_profile_h1,
-                                        error_profile_h2,
-                                        error_profile_op,
-                                        ERR_PARAM_TF,
-                                        shuffle_order_c0,
-                                        shuffle_order_h0,
-                                        shuffle_order_h1,
-                                        shuffle_order_h2,
-                                        shuffle_order_op):
+def batch_mnist32_cnn_ERR(b_images,
+                        b_labels,
+                        model,
+                        error_profile_c0,
+                        error_profile_h0,
+                        error_profile_h1,
+                        error_profile_h2,
+                        error_profile_op,
+                        ERR_PARAM_TF,
+                        shuffle_order_c0,
+                        shuffle_order_h0,
+                        shuffle_order_h1,
+                        shuffle_order_h2,
+                        shuffle_order_op):
     """
         Infer a batch of images/labels using given model, error_profile and shuffle order
         Applies only to 
@@ -28,7 +29,7 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         > error injection and shuffling is executed in ALL Layers
         > bitflip in exponent field of FP32
         
-        Calls: matmul_ERRexpbitflips
+        Calls: matmul_ERR
     """
        
     # get weights and biases from model
@@ -105,13 +106,13 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         
         # is error injection required
         if error_profile_c0 is not None:
-            shuffled_conv_mul_out = matmul_ERRexpbitflips(shuffled_kernels, 
-                                                           padded_single_im_patch,
-                                                           BLOCK_HEIGHT, 
-                                                           BLOCK_WIDTH, 
-                                                           BATCH_BLOCK_SIZE, 
-                                                           ERR_PROFILE=error_profile_c0,
-                                                           ERR_PARAM_TF=ERR_PARAM_TF,)[:,:-no_cols_to_pad]            
+            shuffled_conv_mul_out = matmul_ERR(shuffled_kernels, 
+                                               padded_single_im_patch,
+                                               BLOCK_HEIGHT, 
+                                               BLOCK_WIDTH, 
+                                               BATCH_BLOCK_SIZE, 
+                                               ERR_PROFILE=error_profile_c0,
+                                               ERR_PARAM_TF=ERR_PARAM_TF,)[:,:-no_cols_to_pad]            
 
         else:
             shuffled_conv_mul_out = tf.matmul(shuffled_kernels, padded_single_im_patch)[:,:-no_cols_to_pad]
@@ -171,13 +172,13 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
         BATCH_BLOCK_SIZE = 32 # in reality, inference is always one image at a time. 
                              # However, here we are using batch inference here for speedup
-        shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
-                                                   h0_in,
-                                                   BLOCK_HEIGHT, 
-                                                   BLOCK_WIDTH, 
-                                                   BATCH_BLOCK_SIZE, 
-                                                   ERR_PROFILE=error_profile_h0,
-                                                   ERR_PARAM_TF=ERR_PARAM_TF)
+        shuffled_mult_out = matmul_ERR(shuffled_weights, 
+                                       h0_in,
+                                       BLOCK_HEIGHT, 
+                                       BLOCK_WIDTH, 
+                                       BATCH_BLOCK_SIZE, 
+                                       ERR_PROFILE=error_profile_h0,
+                                       ERR_PARAM_TF=ERR_PARAM_TF)
     else:
         shuffled_mult_out = tf.linalg.matmul(shuffled_weights, h0_in)
         
@@ -221,13 +222,13 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         BLOCK_HEIGHT = N_THREADS_PER_BLOCK # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
         BATCH_BLOCK_SIZE = 32 # inference is always one image at a time.
-        shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
-                                                   h1_in,
-                                                   BLOCK_HEIGHT, 
-                                                   BLOCK_WIDTH, 
-                                                   BATCH_BLOCK_SIZE, 
-                                                   ERR_PROFILE=error_profile_h1,
-                                                   ERR_PARAM_TF=ERR_PARAM_TF)
+        shuffled_mult_out = matmul_ERR(shuffled_weights, 
+                                       h1_in,
+                                       BLOCK_HEIGHT, 
+                                       BLOCK_WIDTH, 
+                                       BATCH_BLOCK_SIZE, 
+                                       ERR_PROFILE=error_profile_h1,
+                                       ERR_PARAM_TF=ERR_PARAM_TF)
     else:
         shuffled_mult_out = tf.linalg.matmul(shuffled_weights, h1_in)
         
@@ -271,13 +272,13 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         BLOCK_HEIGHT = N_THREADS_PER_BLOCK # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
         BATCH_BLOCK_SIZE = 32 # inference is always one image at a time.
-        shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
-                                                   h2_in,
-                                                   BLOCK_HEIGHT, 
-                                                   BLOCK_WIDTH, 
-                                                   BATCH_BLOCK_SIZE, 
-                                                   ERR_PROFILE=error_profile_h2,
-                                                   ERR_PARAM_TF=ERR_PARAM_TF)
+        shuffled_mult_out = matmul_ERR(shuffled_weights, 
+                                       h2_in,
+                                       BLOCK_HEIGHT, 
+                                       BLOCK_WIDTH, 
+                                       BATCH_BLOCK_SIZE, 
+                                       ERR_PROFILE=error_profile_h2,
+                                       ERR_PARAM_TF=ERR_PARAM_TF)
     else:
         shuffled_mult_out = tf.linalg.matmul(shuffled_weights, h2_in)
         
@@ -321,13 +322,13 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
         BLOCK_HEIGHT = NO_OF_CLASSES # no. of threads per block
         BLOCK_WIDTH = 32 # totcols is always (going to be) a multiple of BLOCK_WIDTH
         BATCH_BLOCK_SIZE = 32 # inference is always one image at a time.
-        shuffled_mult_out = matmul_ERRexpbitflips(shuffled_weights, 
-                                                   op_in,
-                                                   BLOCK_HEIGHT, 
-                                                   BLOCK_WIDTH, 
-                                                   BATCH_BLOCK_SIZE, 
-                                                   ERR_PROFILE=error_profile_op,
-                                                   ERR_PARAM_TF=ERR_PARAM_TF)
+        shuffled_mult_out = matmul_ERR(shuffled_weights, 
+                                       op_in,
+                                       BLOCK_HEIGHT, 
+                                       BLOCK_WIDTH, 
+                                       BATCH_BLOCK_SIZE, 
+                                       ERR_PROFILE=error_profile_op,
+                                       ERR_PARAM_TF=ERR_PARAM_TF)
     else:
         shuffled_mult_out = tf.linalg.matmul(shuffled_weights, op_in)
         
@@ -356,21 +357,21 @@ def batch_lenet_3hidden_ERRexpbitflips( b_images,
     # return predictions
     return tf.math.reduce_sum(tf.cast(tf.math.not_equal(tf.cast(b_labels, dtype=tf.int64), predictions), dtype=tf.int64))
 ##############################################################################################################################
-def ff_lenet_3hidden_ERRexpbitflips(model,
-                                    error_profile_c0,
-                                    error_profile_h0,
-                                    error_profile_h1,
-                                    error_profile_h2,
-                                    error_profile_op,
-                                    ERR_PARAM,
-                                    shuffle_order_c0,
-                                    shuffle_order_h0,
-                                    shuffle_order_h1,
-                                    shuffle_order_h2,
-                                    shuffle_order_op,
-                                    test_set,
-                                    batchsize):
-    
+def ff_mnist32_cnn_ERR(model,
+                    error_profile_c0,
+                    error_profile_h0,
+                    error_profile_h1,
+                    error_profile_h2,
+                    error_profile_op,
+                    ERR_PARAM,
+                    shuffle_order_c0,
+                    shuffle_order_h0,
+                    shuffle_order_h1,
+                    shuffle_order_h2,
+                    shuffle_order_op,
+                    test_set,
+                    batchsize):
+
     if ERR_PARAM is not None:
         ERR_PARAM_TF = tf.constant(ERR_PARAM)
     else:
@@ -382,57 +383,57 @@ def ff_lenet_3hidden_ERRexpbitflips(model,
     tot_images = test_dataset.cardinality() *batchsize
     misses = 0
     for step, (b_images, b_labels) in enumerate(test_dataset):
-        b_misses = batch_lenet_3hidden_ERRexpbitflips( b_images,
-                                                        b_labels,
-                                                        model,
-                                                        error_profile_c0,
-                                                        error_profile_h0,
-                                                        error_profile_h1,
-                                                        error_profile_h2,
-                                                        error_profile_op,
-                                                        ERR_PARAM_TF,
-                                                        shuffle_order_c0,
-                                                        shuffle_order_h0,
-                                                        shuffle_order_h1,
-                                                        shuffle_order_h2,
-                                                        shuffle_order_op)
-        
+        b_misses = batch_mnist32_cnn_ERR( b_images,
+                                        b_labels,
+                                        model,
+                                        error_profile_c0,
+                                        error_profile_h0,
+                                        error_profile_h1,
+                                        error_profile_h2,
+                                        error_profile_op,
+                                        ERR_PARAM_TF,
+                                        shuffle_order_c0,
+                                        shuffle_order_h0,
+                                        shuffle_order_h1,
+                                        shuffle_order_h2,
+                                        shuffle_order_op)
+
         misses = misses + b_misses
 
     return (tot_images-misses)/tot_images
 ##############################################################################################################################
-def eval_lenet_3hidden_ERRexpbitflips(model,
-                                    error_profile_c0,
-                                    error_profile_h0,
-                                    error_profile_h1,
-                                    error_profile_h2,
-                                    error_profile_op,
-                                    ERR_PARAM,
-                                    shuffle_order_c0,
-                                    shuffle_order_h0,
-                                    shuffle_order_h1,
-                                    shuffle_order_h2,
-                                    shuffle_order_op,
-                                    test_set):
+def eval_mnist32_cnn_ERR( model,
+                        error_profile_c0,
+                        error_profile_h0,
+                        error_profile_h1,
+                        error_profile_h2,
+                        error_profile_op,
+                        ERR_PARAM,
+                        shuffle_order_c0,
+                        shuffle_order_h0,
+                        shuffle_order_h1,
+                        shuffle_order_h2,
+                        shuffle_order_op,
+                        test_set):
     N_RUNS_PER_SHUFF_ORDER = 3
     BATCHSIZE = 128
     shuffle_result = []
     # Evaluate N_RUNS_PER_SHUFF_ORDER times for each shuffle order
     for i in range(N_RUNS_PER_SHUFF_ORDER):
-        accuracy = ff_lenet_3hidden_ERRexpbitflips(model,
-                                                    error_profile_c0,
-                                                    error_profile_h0,
-                                                    error_profile_h1,
-                                                    error_profile_h2,
-                                                    error_profile_op,
-                                                    ERR_PARAM,
-                                                    shuffle_order_c0,
-                                                    shuffle_order_h0,
-                                                    shuffle_order_h1,
-                                                    shuffle_order_h2,
-                                                    shuffle_order_op,
-                                                    test_set,
-                                                    BATCHSIZE).numpy()
+        accuracy = ff_mnist32_cnn_ERR(model,
+                                        error_profile_c0,
+                                        error_profile_h0,
+                                        error_profile_h1,
+                                        error_profile_h2,
+                                        error_profile_op,
+                                        ERR_PARAM,
+                                        shuffle_order_c0,
+                                        shuffle_order_h0,
+                                        shuffle_order_h1,
+                                        shuffle_order_h2,
+                                        shuffle_order_op,
+                                        test_set,
+                                        BATCHSIZE).numpy()
         shuffle_result.append(accuracy)
     return (np.mean(shuffle_result), 
             np.std(shuffle_result))    
