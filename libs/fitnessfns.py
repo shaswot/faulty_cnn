@@ -6,7 +6,7 @@ import warnings
 from libs.errmatmul import matmul_ERR, N_THREADS_PER_BLOCK
 NO_OF_CLASSES = 10
 
-# Batchwise accuracy evaluation of LeNet CNN model using matmul_ERR
+# Batchwise accuracy evaluation of mnist32_cnn model using matmul_ERR
 @tf.function
 def batch_mnist32_cnn_ERR(b_images,
                         b_labels,
@@ -25,9 +25,10 @@ def batch_mnist32_cnn_ERR(b_images,
     """
         Infer a batch of images/labels using given model, error_profile and shuffle order
         Applies only to 
-        > LeNet CNN with THREE hidden layers
+        > mnist32_cnn with THREE hidden layers
         > error injection and shuffling is executed in ALL Layers
-        > bitflip in exponent field of FP32
+        > bitflip in exponent field of FP32 [ERR: 0,1,-1]
+        > truncation in mantissa field of FP32 [ERR: 2, 3]
         
         Calls: matmul_ERR
     """
@@ -356,7 +357,7 @@ def batch_mnist32_cnn_ERR(b_images,
     ## count no. of wrong predicitons
     # return predictions
     return tf.math.reduce_sum(tf.cast(tf.math.not_equal(tf.cast(b_labels, dtype=tf.int64), predictions), dtype=tf.int64))
-##############################################################################################################################
+##################################################
 def ff_mnist32_cnn_ERR(model,
                     error_profile_c0,
                     error_profile_h0,
@@ -401,7 +402,7 @@ def ff_mnist32_cnn_ERR(model,
         misses = misses + b_misses
 
     return (tot_images-misses)/tot_images
-##############################################################################################################################
+##################################################
 def eval_mnist32_cnn_ERR( model,
                         error_profile_c0,
                         error_profile_h0,
@@ -437,4 +438,33 @@ def eval_mnist32_cnn_ERR( model,
         shuffle_result.append(accuracy)
     return (np.mean(shuffle_result), 
             np.std(shuffle_result))    
-##############################################################################################################################
+##################################################
+##################################################
+# Batchwise accuracy evaluation of fashion_cnn2 model using matmul_ERR
+def batch_fashion_cnn2_ERR(b_images,
+                            b_labels,
+                            model,
+                            error_profile_c0,
+                            error_profile_c1,
+                            error_profile_h0,
+                            error_profile_op,
+                            ERR_PARAM_TF,
+                            shuffle_order_c0,
+                            shuffle_order_c1,
+                            shuffle_order_h0,
+                            shuffle_order_op):
+    """
+        Infer a batch of images/labels using given model, error_profile and shuffle order
+        Applies only to 
+        > fashion_cnn2 with 2 convolution layers and 1 hidden layer
+        > error injection and shuffling is executed in ALL Layers
+        > bitflip in exponent field of FP32 [ERR: 0,1,-1]
+        > truncation in mantissa field of FP32 [ERR: 2, 3]
+        
+        Calls: matmul_ERR
+    """
+    # get weights and biases from model
+    c0_kernels, c0_biases = model.get_layer("c0").weights
+    c1_kernels, c1_biases = model.get_layer("c1").weights
+    h0_weights, h0_biases = model.get_layer("h0").weights
+    op_weights, op_biases = model.get_layer("op").weights
