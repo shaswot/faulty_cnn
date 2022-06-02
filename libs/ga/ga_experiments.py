@@ -91,7 +91,7 @@ class EXP_mnist32_cnn_ERR:
 class EXP_mnist32_cnn_ERR_c0(EXP_mnist32_cnn_ERR):
     def run(self):
         genetic_info = {
-            'gene_length': model.get_layer("c0").weights[0].shape[-1]
+            'gene_length': self.model.get_layer("c0").weights[0].shape[-1]
              # no. of rows of (transposed) weight matrix of output
              # for convolution layer, the no. of rows = no. of filter kernels (i.e. output channels)
         }
@@ -113,7 +113,7 @@ class EXP_mnist32_cnn_ERR_c0(EXP_mnist32_cnn_ERR):
 class EXP_mnist32_cnn_ERR_h2(EXP_mnist32_cnn_ERR):
     def run(self):
         genetic_info = {
-            'gene_length': model.get_layer("h2").weights[0].shape[-1]
+            'gene_length': self.model.get_layer("h2").weights[0].shape[-1]
              # no. of rows of (transposed) weight matrix of output
         }
 
@@ -134,7 +134,7 @@ class EXP_mnist32_cnn_ERR_h2(EXP_mnist32_cnn_ERR):
 class EXP_mnist32_cnn_ERR_op(EXP_mnist32_cnn_ERR):
     def run(self):
         genetic_info = {
-            'gene_length': model.get_layer("op").weights[0].shape[-1]
+            'gene_length': self.model.get_layer("op").weights[0].shape[-1]
              # no. of rows of (transposed) weight matrix of output
         }
 
