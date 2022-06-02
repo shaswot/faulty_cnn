@@ -137,7 +137,7 @@ for error_param in error_params:
         logging_folder = pathlib.Path(PROJ_ROOT_PATH / "logging" / dataset_seg_type / model_type / model_instance / error_lim / error_profile_tag / error_type / layer )
         
         if not os.path.exists(logging_folder):
-            os.makedirs(logging_folder)
+            os.makedirs(logging_folder, exist_ok = True)
         logging_filename_tag = pathlib.Path(logging_folder / ga_experiment_name)
 
         for i in range(K):
