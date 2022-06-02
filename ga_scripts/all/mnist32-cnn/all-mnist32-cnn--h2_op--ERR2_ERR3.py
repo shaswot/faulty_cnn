@@ -134,7 +134,7 @@ for error_param in error_params:
         experiment_name    = model_instance   + '--' + error_profile_tag
         ga_experiment_name = dataset_seg_type + "_"  + experiment_name + "--" + error_type + '--' + layer + '--ga_' + str(this_seed)
         # File/Folder to save log files
-        logging_folder = pathlib.Path(PROJ_ROOT_PATH / "logging" / dataset_seg_type / model_type / model_instance / error_lim / error_instance / error_type / layer )
+        logging_folder = pathlib.Path(PROJ_ROOT_PATH / "logging" / dataset_seg_type / model_type / model_instance / error_lim / error_profile_tag / error_type / layer )
         
         if not os.path.exists(logging_folder):
             os.makedirs(logging_folder)
