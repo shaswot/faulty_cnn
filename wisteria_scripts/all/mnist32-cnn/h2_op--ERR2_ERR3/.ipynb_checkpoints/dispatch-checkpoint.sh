@@ -40,5 +40,5 @@ EOF
 # ERR_SEEDS = 2188, 3987, 4981, 6404, 9387
 
 # submit job script
-# pjsub ${exp_name}--${model_instance}--${error_lim}.job
+pjsub ${exp_name}--${model_instance}--${error_lim}.job
  

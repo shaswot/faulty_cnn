@@ -106,9 +106,9 @@ for error_param in error_params:
         ga_func = getattr(module, ga_func_name)
 
         # No. of times to repeat experiments
-        K = 3
-        POP_SIZE = 20
-        N_GENERATIONS = 100
+        K = 2#3
+        POP_SIZE = 3#20
+        N_GENERATIONS = 4#100
         CR = 0.6
         MR = 0.2
 
