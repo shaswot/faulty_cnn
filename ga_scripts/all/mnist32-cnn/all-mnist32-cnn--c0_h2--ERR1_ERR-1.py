@@ -79,8 +79,8 @@ im_num = 128*40#128*40=5120 #[128*78 = 9984]
 test_set = (test_images[im_num:], 
             test_labels[im_num:])
 
-error_params = [2,3] # types of error to optimize for
-layers = ["h2","op"] # layers to optimize with GA optimization
+error_params = [1,-1] # types of error to optimize for
+layers = ["c0","h2"] # layers to optimize with GA optimization
 
 # meta_optim = avg, ent
 # quadrant = q1, q2, q3, q4
