@@ -1,6 +1,6 @@
 import subprocess
 
-experiment = "mnist32-cnn_1024_256_64-1023--LIM_01"
+experiment = "mnist32-cnn_1024_256_64-1023--LIM_100"
 model_instance, error_lim = experiment.split("--")
 
 exp_script_list = [ 

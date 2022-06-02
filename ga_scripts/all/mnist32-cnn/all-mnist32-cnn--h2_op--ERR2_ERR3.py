@@ -69,7 +69,7 @@ error_profile_folder = pathlib.Path(PROJ_ROOT_PATH / "error_profiles")
 error_profile_filename = error_profile_tag + ".npy"
 error_profile_file = pathlib.Path(error_profile_folder/ error_profile_filename)
 error_profile = np.load(error_profile_file)
-
+error_lim, error_seed = error_profile_tag.split('-')
 # Batchsize for evaluation
 EVAL_BATCHSIZE = 128
 
@@ -88,9 +88,9 @@ layers = ["h2","op"] # layers to optimize with GA optimization
 dataset_seg_type = "all" # type of dataset segregation 
         
 for error_param in error_params:
-    err_type = "ERR_"+str(error_param)
+    error_type = "ERR_"+str(error_param)
     print('+'*40)
-    print(err_type)
+    print(error_type)
     print('+'*40)
     
     for layer in layers:
@@ -130,11 +130,12 @@ for error_param in error_params:
         # model_type: 'mnist32-cnn_1024_256_64'
         # model_meta_type: 'mnist32-cnn'
 
-        EXP_TYPE           = dataset_seg_type + "_"  + model_meta_type + "_" + layer + "_" + err_type
+        EXP_TYPE           = dataset_seg_type + "_"  + model_meta_type + "_" + layer + "_" + error_type
         experiment_name    = model_instance   + '--' + error_profile_tag
-        ga_experiment_name = dataset_seg_type + "_"  + experiment_name + '--' + layer + "--" + err_type + '--ga_' + str(this_seed)
+        ga_experiment_name = dataset_seg_type + "_"  + experiment_name + "--" + error_type + '--' + layer + '--ga_' + str(this_seed)
         # File/Folder to save log files
-        logging_folder = pathlib.Path(PROJ_ROOT_PATH / "logging" / dataset_seg_type / model_type  / err_type / model_instance / layer )
+        logging_folder = pathlib.Path(PROJ_ROOT_PATH / "logging" / dataset_seg_type / model_type / model_instance / error_lim / error_instance / error_type / layer )
+        
         if not os.path.exists(logging_folder):
             os.makedirs(logging_folder)
         logging_filename_tag = pathlib.Path(logging_folder / ga_experiment_name)
