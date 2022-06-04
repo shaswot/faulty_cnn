@@ -24,9 +24,11 @@ from libs.ga.individual import INDV_mnist32_cnn_ERR_c0
 from libs.ga.individual import INDV_mnist32_cnn_ERR_h2
 from libs.ga.individual import INDV_mnist32_cnn_ERR_op
 
+from libs.ga.individual import INDV_fashion_cnn2_ERR_c0
+from libs.ga.individual import INDV_fashion_cnn2_ERR_c1
 #########################################################################
 # Base class for mnist32_cnn_ERR experiments
-class EXP_mnist32_cnn_ERR:
+class EXP_ERR:
     def __init__(self,
                  model,
                  error_profile,
@@ -87,8 +89,10 @@ class EXP_mnist32_cnn_ERR:
 
         print('Done')
 #########################################################################
+# mnist32-cnn_1024_256_64 GA experiments [c0, h2, op]
+#########################################################################
 # Shuffling rows of convolutional layer
-class EXP_mnist32_cnn_ERR_c0(EXP_mnist32_cnn_ERR):
+class EXP_mnist32_cnn_ERR_c0(EXP_ERR):
     def run(self):
         genetic_info = {
             'gene_length': self.model.get_layer("c0").weights[0].shape[-1]
@@ -110,7 +114,7 @@ class EXP_mnist32_cnn_ERR_c0(EXP_mnist32_cnn_ERR):
         )
 #########################################################################
 # Shuffling rows of h2 layer
-class EXP_mnist32_cnn_ERR_h2(EXP_mnist32_cnn_ERR):
+class EXP_mnist32_cnn_ERR_h2(EXP_ERR):
     def run(self):
         genetic_info = {
             'gene_length': self.model.get_layer("h2").weights[0].shape[-1]
@@ -131,7 +135,7 @@ class EXP_mnist32_cnn_ERR_h2(EXP_mnist32_cnn_ERR):
         )
 #########################################################################
 # Shuffling rows of output layer
-class EXP_mnist32_cnn_ERR_op(EXP_mnist32_cnn_ERR):
+class EXP_mnist32_cnn_ERR_op(EXP_ERR):
     def run(self):
         genetic_info = {
             'gene_length': self.model.get_layer("op").weights[0].shape[-1]
@@ -147,6 +151,51 @@ class EXP_mnist32_cnn_ERR_op(EXP_mnist32_cnn_ERR):
     
         self.run_GA_evaluation(
             individual_type=INDV_mnist32_cnn_ERR_op,
+            genetic_info=genetic_info,
+            fitness_params=fitness_params
+        )
+#########################################################################
+#########################################################################
+# fashion-cnn2 GA experiments [c0, c1]
+#########################################################################
+class EXP_fashion_cnn2_ERR_c0(EXP_ERR):
+    def run(self):
+        genetic_info = {
+            'gene_length': self.model.get_layer("c0").weights[0].shape[-1]
+             # no. of rows of (transposed) weight matrix of output
+             # for convolution layer, the no. of rows = no. of filter kernels (i.e. output channels)
+        }
+
+        fitness_params = {
+            'model': self.model,
+            'error_profile': self.error_profile,
+            'error_param': self.ERR_PARAM,
+            'test_set': self.test_set
+        }
+    
+        self.run_GA_evaluation(
+            individual_type=INDV_fashion_cnn2_ERR_c0,
+            genetic_info=genetic_info,
+            fitness_params=fitness_params
+        )
+#########################################################################
+class EXP_fashion_cnn2_ERR_c1(EXP_ERR):
+    def run(self):
+        genetic_info = {
+            'gene_length': self.model.get_layer("c1").weights[0].shape[-1]
+             # no. of rows of (transposed) weight matrix of output
+             # for convolution layer, the no. of rows = no. of filter kernels (i.e. output channels)
+        }
+
+        fitness_params = {
+            'model': self.model,
+            'error_profile': self.error_profile,
+            'error_param': self.ERR_PARAM,
+            'test_set': self.test_set
+        }
+    
+        self.run_GA_evaluation(
+            individual_type=INDV_fashion_cnn2_ERR_c1,
             genetic_info=genetic_info,
             fitness_params=fitness_params
         )

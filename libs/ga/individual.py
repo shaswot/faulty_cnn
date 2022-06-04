@@ -16,6 +16,7 @@ if PROJ_ROOT not in sys.path:
     
 from libs.ga.genetic_algorithm import BaseIndividual
 from libs.fitnessfns import eval_mnist32_cnn_ERR
+from libs.fitnessfns import eval_fashion_cnn2_ERR
 
 #########################################################################
 class StatisticalFitness(namedtuple('StatisticalFitness', ['mean', 'std'])):
@@ -66,8 +67,8 @@ class StatisticalFitness(namedtuple('StatisticalFitness', ['mean', 'std'])):
 
         return self.mean >= other.mean
 #########################################################################
-# Base class for mnist32_cnn
-class INDV_mnist32_cnn_ERR(BaseIndividual):
+# Base class definitions
+class INDV_ERR(BaseIndividual):
     @classmethod
     def set_individual_attrs(cls, genetic_info, fitness_params):
         GENETIC_INFO_KEYS = ['gene_length' # required to generated shuffled row order
@@ -202,8 +203,11 @@ class INDV_mnist32_cnn_ERR(BaseIndividual):
         return 'Gene:%s; Fitness: Mean:%.6f; Std:%.6f' % \
             (self.genotype, self._fitness.mean, self._fitness.std)
 #########################################################################
+#########################################################################
+# mnist32-cnn_1024_256_64 GA individuals [c0, h2, op]
+#########################################################################
 # Shuffling rows of c0 convolutional layer
-class INDV_mnist32_cnn_ERR_c0(INDV_mnist32_cnn_ERR):
+class INDV_mnist32_cnn_ERR_c0(INDV_ERR):
     def calculate_fitness(self, phenotype):
         assert self.FITNESS_PARAMS is not None, 'Missing fitness parameter'
 
@@ -233,7 +237,7 @@ class INDV_mnist32_cnn_ERR_c0(INDV_mnist32_cnn_ERR):
         return StatisticalFitness(mean_acc, std_acc)
 #########################################################################
 # Shuffling rows of h2 hidden layer
-class INDV_mnist32_cnn_ERR_h2(INDV_mnist32_cnn_ERR):
+class INDV_mnist32_cnn_ERR_h2(INDV_ERR):
     def calculate_fitness(self, phenotype):
         assert self.FITNESS_PARAMS is not None, 'Missing fitness parameter'
 
@@ -263,7 +267,7 @@ class INDV_mnist32_cnn_ERR_h2(INDV_mnist32_cnn_ERR):
         return StatisticalFitness(mean_acc, std_acc)
 #########################################################################
 # Shuffling rows of output layer
-class INDV_mnist32_cnn_ERR_op(INDV_mnist32_cnn_ERR):
+class INDV_mnist32_cnn_ERR_op(INDV_ERR):
     def calculate_fitness(self, phenotype):
         assert self.FITNESS_PARAMS is not None, 'Missing fitness parameter'
 
@@ -289,6 +293,63 @@ class INDV_mnist32_cnn_ERR_op(INDV_mnist32_cnn_ERR):
                                                 shuffle_order_h1=None,
                                                 shuffle_order_h2=None,
                                                 shuffle_order_op=shuffle_order,
+                                                test_set=test_set)   
+        return StatisticalFitness(mean_acc, std_acc)
+#########################################################################
+#########################################################################
+# fashion-cnn2 GA individuals [c0, c1]
+#########################################################################
+class INDV_fashion_cnn2_ERR_c0(INDV_ERR):
+    def calculate_fitness(self, phenotype):
+        assert self.FITNESS_PARAMS is not None, 'Missing fitness parameter'
+
+        model = self.FITNESS_PARAMS['model']
+        test_set = self.FITNESS_PARAMS['test_set']
+        error_profile = self.FITNESS_PARAMS['error_profile']
+        ERR_PARAM = self.FITNESS_PARAMS['error_param']
+
+        # evaluate the phenotype (row shuffle order) with 
+        # each error_profile
+        # using the test_set
+        shuffle_order = phenotype
+        
+        mean_acc, std_acc = eval_fashion_cnn2_ERR(model=model,
+                                                error_profile_c0=error_profile,
+                                                error_profile_c1=None,
+                                                error_profile_h0=None,
+                                                error_profile_op=None,
+                                                ERR_PARAM=ERR_PARAM,
+                                                shuffle_order_c0=shuffle_order,
+                                                shuffle_order_c1=None,
+                                                shuffle_order_h0=None,
+                                                shuffle_order_op=None,
+                                                test_set=test_set)   
+        return StatisticalFitness(mean_acc, std_acc)
+#########################################################################
+class INDV_fashion_cnn2_ERR_c1(INDV_ERR):
+    def calculate_fitness(self, phenotype):
+        assert self.FITNESS_PARAMS is not None, 'Missing fitness parameter'
+
+        model = self.FITNESS_PARAMS['model']
+        test_set = self.FITNESS_PARAMS['test_set']
+        error_profile = self.FITNESS_PARAMS['error_profile']
+        ERR_PARAM = self.FITNESS_PARAMS['error_param']
+
+        # evaluate the phenotype (row shuffle order) with 
+        # each error_profile
+        # using the test_set
+        shuffle_order = phenotype
+        
+        mean_acc, std_acc = eval_fashion_cnn2_ERR(model=model,
+                                                error_profile_c0=None,
+                                                error_profile_c1=error_profile,
+                                                error_profile_h0=None,
+                                                error_profile_op=None,
+                                                ERR_PARAM=ERR_PARAM,
+                                                shuffle_order_c0=None,
+                                                shuffle_order_c1=shuffle_order,
+                                                shuffle_order_h0=None,
+                                                shuffle_order_op=None,
                                                 test_set=test_set)   
         return StatisticalFitness(mean_acc, std_acc)
 #########################################################################
