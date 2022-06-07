@@ -1,0 +1,105 @@
+2022-06-06 08:45:10.641104: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2022-06-06 08:45:11.320188: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1525] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 75932 MB memory:  -> device: 0, name: NVIDIA A100 80GB PCIe, pci bus id: 0000:4b:00.0, compute capability: 8.0
+2022-06-06 08:45:26.695734: I tensorflow/stream_executor/cuda/cuda_blas.cc:1786] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2022-06-06 08:45:27.452493: I tensorflow/stream_executor/cuda/cuda_dnn.cc:368] Loaded cuDNN version 8100
+++++++++++++++++++++++++++++++++++++++++
+ERR_1
+++++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Layer:  c0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Population:  20
+Generations:  100
+Crossover Rate:  0.6
+Mutation Rate:  0.2
+####################
+Experiment number 1
+Logfile:  /repos/faulty_cnn/logging/all/mnist32-cnn_1024_256_64/mnist32-cnn_1024_256_64-2920/LIM_05/LIM_05-3987/ERR_1/c0/all_mnist32-cnn_1024_256_64-2920--LIM_05-3987--ERR_1--c0--ga_84376--0.csv
+Starting GA experiment...
+GA: initializing first population
+GA: start main loop...
+GA: Generation 1: took 765.13(s)
+	Best fitness: 0.731839
+GA: Generation 2: took 765.27(s)
+	Best fitness: 0.731839
+	No improvement for 1 gen(s)
+GA: Generation 3: took 1184.02(s)
+	Best fitness: 0.742256
+GA: Generation 4: took 1010.26(s)
+	Best fitness: 0.755003
+GA: Generation 5: took 809.98(s)
+	Best fitness: 0.788651
+GA: Generation 6: took 1046.93(s)
+	Best fitness: 0.794202
+GA: Generation 7: took 1116.32(s)
+	Best fitness: 0.820929
+GA: Generation 8: took 1152.23(s)
+	Best fitness: 0.820929
+	No improvement for 1 gen(s)
+GA: Generation 9: took 907.50(s)
+	Best fitness: 0.820929
+	No improvement for 2 gen(s)
+GA: Generation 10: took 1150.88(s)
+	Best fitness: 0.820929
+	No improvement for 3 gen(s)
+GA: Generation 11: took 662.63(s)
+	Best fitness: 0.820929
+	No improvement for 4 gen(s)
+GA: Generation 12: took 906.46(s)
+	Best fitness: 0.820929
+	No improvement for 5 gen(s)
+GA: Generation 13: took 975.84(s)
+	Best fitness: 0.820929
+	No improvement for 6 gen(s)
+GA: Generation 14: took 1149.76(s)
+	Best fitness: 0.820929
+	No improvement for 7 gen(s)
+GA: Generation 15: took 942.21(s)
+	Best fitness: 0.820929
+	No improvement for 8 gen(s)
+GA: Generation 16: took 838.22(s)
+	Best fitness: 0.820929
+	No improvement for 9 gen(s)
+GA: Generation 17: took 802.59(s)
+	Best fitness: 0.820929
+	No improvement for 10 gen(s)
+Traceback (most recent call last):
+  File "all-mnist32-cnn--c0--ERR1_ERR-1.py", line 162, in <module>
+  File "/repos/faulty_cnn/libs/ga/ga_experiments.py", line 110, in run
+    self.run_GA_evaluation(
+  File "/repos/faulty_cnn/libs/ga/ga_experiments.py", line 80, in run_GA_evaluation
+    history = ga.search(verbose=True)
+  File "/repos/faulty_cnn/libs/ga/genetic_algorithm.py", line 459, in search
+    self.breed_new_offsprings()
+  File "/repos/faulty_cnn/libs/ga/genetic_algorithm.py", line 391, in breed_new_offsprings
+    offspring1, offspring2 = self.do_crossover()
+  File "/repos/faulty_cnn/libs/ga/genetic_algorithm.py", line 372, in do_crossover
+    return self.individual_type.crossover(parent1, parent2)
+  File "/repos/faulty_cnn/libs/ga/individual.py", line 169, in crossover
+    offspring1 = cls.from_genotype(new_gene1)
+  File "/repos/faulty_cnn/libs/ga/genetic_algorithm.py", line 85, in from_genotype
+    return cls(genotype=genotype, phenotype=phenotype)
+  File "/repos/faulty_cnn/libs/ga/genetic_algorithm.py", line 30, in __init__
+    self._fitness = self.calculate_fitness(phenotype)
+  File "/repos/faulty_cnn/libs/ga/individual.py", line 224, in calculate_fitness
+    mean_acc, std_acc = eval_mnist32_cnn_ERR(model=model,
+  File "/repos/faulty_cnn/libs/fitnessfns.py", line 424, in eval_mnist32_cnn_ERR
+    accuracy = ff_mnist32_cnn_ERR(model,
+  File "/repos/faulty_cnn/libs/fitnessfns.py", line 387, in ff_mnist32_cnn_ERR
+    b_misses = batch_mnist32_cnn_ERR( b_images,
+  File "/usr/local/lib/python3.8/dist-packages/tensorflow/python/util/traceback_utils.py", line 150, in error_handler
+    return fn(*args, **kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/tensorflow/python/eager/def_function.py", line 915, in __call__
+    result = self._call(*args, **kwds)
+  File "/usr/local/lib/python3.8/dist-packages/tensorflow/python/eager/def_function.py", line 954, in _call
+    results = self._stateful_fn(*args, **kwds)
+  File "/usr/local/lib/python3.8/dist-packages/tensorflow/python/eager/function.py", line 2956, in __call__
+    return graph_function._call_flat(
+  File "/usr/local/lib/python3.8/dist-packages/tensorflow/python/eager/function.py", line 1853, in _call_flat
+    return self._build_call_outputs(self._inference_function.call(
+  File "/usr/local/lib/python3.8/dist-packages/tensorflow/python/eager/function.py", line 499, in call
+    outputs = execute.execute(
+  File "/usr/local/lib/python3.8/dist-packages/tensorflow/python/eager/execute.py", line 54, in quick_execute
+    tensors = pywrap_tfe.TFE_Py_Execute(ctx._handle, device_name, op_name,
+KeyboardInterrupt
