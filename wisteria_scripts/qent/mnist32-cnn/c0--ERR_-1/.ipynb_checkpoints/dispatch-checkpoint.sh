@@ -35,15 +35,7 @@ singularity exec \
 	--bind `pwd` \
 	-H /work/gq50/q50002/faulty_cnn\
 	/work/gq50/q50002/faulty_cnn_san.file \
-	python ${exp_name}.py ${model_instance} ${error_lim}-4981 > ${log_folder}/${model_instance}--${error_lim}-4981".log" 2>&1 &
-
-
-singularity exec \
-	--bind `pwd` \
-	-H /work/gq50/q50002/faulty_cnn\
-	/work/gq50/q50002/faulty_cnn_san.file \
-    python ${exp_name}.py ${model_instance} ${error_lim}-3987 > ${log_folder}/${model_instance}--${error_lim}-3987".log" 2>&1
-
+	python ${exp_name}.py ${model_instance} ${error_lim}-4981 > ${log_folder}/${model_instance}--${error_lim}-4981".log" 2>&1
 
 
 EOF
