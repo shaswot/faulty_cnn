@@ -18,7 +18,7 @@ if PROJ_ROOT not in sys.path:
     sys.path.append(PROJ_ROOT)
     
 from libs import utils
-from libs.utils import segregate_dataset_4Q_ent
+from libs.utils import segregate_dataset_4Q_mean
 
 # set seed
 this_seed = 84376
@@ -80,32 +80,32 @@ EVAL_BATCHSIZE = 128
 
 # Load test set
 # Testing with only im_num images
-im_num = 128*10#128*40=5120 #[128*78 = 9984]
-(qent1_images, qent1_labels,
-qent2_images, qent2_labels,
-qent3_images, qent3_labels,
-qent4_images, qent4_labels) = segregate_dataset_4Q_ent(all_images, all_labels, half_size=int(image_x_size/2))
+im_num = 128*40#128*40=5120 #[128*78 = 9984]
+(qmean1_images, qmean1_labels,
+qmean2_images, qmean2_labels,
+qmean3_images, qmean3_labels,
+qmean4_images, qmean4_labels) = segregate_dataset_4Q_mean(all_images, all_labels, half_size=int(image_x_size/2))
 
-qent1_images = qent1_images[-im_num:]
-qent1_labels = qent1_labels[-im_num:]
+qmean1_images = qmean1_images[-im_num:]
+qmean1_labels = qmean1_labels[-im_num:]
 
-qent2_images = qent2_images[-im_num:]
-qent2_labels = qent2_labels[-im_num:]
+qmean2_images = qmean2_images[-im_num:]
+qmean2_labels = qmean2_labels[-im_num:]
 
-qent3_images = qent3_images[-im_num:]
-qent3_labels = qent3_labels[-im_num:]
+qmean3_images = qmean3_images[-im_num:]
+qmean3_labels = qmean3_labels[-im_num:]
 
-qent4_images = qent4_images[-im_num:]
-qent4_labels = qent4_labels[-im_num:]
+qmean4_images = qmean4_images[-im_num:]
+qmean4_labels = qmean4_labels[-im_num:]
 
-test_set = (qent3_images, 
-            qent3_labels)
+test_set = (qmean2_images, 
+            qmean2_labels)
 
-error_params = [-1,1] # types of error to optimize for
+error_params = [-1] # types of error to optimize for
 layers = ["c0"] # layers to optimize with GA optimization
 
-meta_optim = "ent" #, "ent"
-dataset_seg_type = "qent3" # "all" # type of dataset segregation 
+meta_optim = "mean" #, "ent"
+dataset_seg_type = "qmean2" # "all" # type of dataset segregation 
         
 for error_param in error_params:
     error_type = "ERR_"+str(error_param)

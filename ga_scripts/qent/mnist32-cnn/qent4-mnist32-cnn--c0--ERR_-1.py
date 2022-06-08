@@ -80,7 +80,7 @@ EVAL_BATCHSIZE = 128
 
 # Load test set
 # Testing with only im_num images
-im_num = 128*10#128*40=5120 #[128*78 = 9984]
+im_num = 128*40#128*40=5120 #[128*78 = 9984]
 (qent1_images, qent1_labels,
 qent2_images, qent2_labels,
 qent3_images, qent3_labels,
@@ -98,14 +98,14 @@ qent3_labels = qent3_labels[-im_num:]
 qent4_images = qent4_images[-im_num:]
 qent4_labels = qent4_labels[-im_num:]
 
-test_set = (qent1_images, 
-            qent1_labels)
+test_set = (qent4_images, 
+            qent4_labels)
 
-error_params = [-1,1] # types of error to optimize for
+error_params = [-1] # types of error to optimize for
 layers = ["c0"] # layers to optimize with GA optimization
 
 meta_optim = "ent" #, "ent"
-dataset_seg_type = "qent1" # "all" # type of dataset segregation 
+dataset_seg_type = "qent4" # "all" # type of dataset segregation 
         
 for error_param in error_params:
     error_type = "ERR_"+str(error_param)
