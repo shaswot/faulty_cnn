@@ -279,3 +279,279 @@ GA: Generation 91: took 966.29(s)
 GA: Generation 92: took 1001.70(s)
 	Best fitness: 0.901796
 	No improvement for 30 gen(s)
+GA: Generation 93: took 608.89(s)
+	Best fitness: 0.901796
+	No improvement for 31 gen(s)
+GA: Generation 94: took 1002.24(s)
+	Best fitness: 0.901796
+	No improvement for 32 gen(s)
+GA: Generation 95: took 826.38(s)
+	Best fitness: 0.901796
+	No improvement for 33 gen(s)
+GA: Generation 96: took 860.54(s)
+	Best fitness: 0.901796
+	No improvement for 34 gen(s)
+GA: Generation 97: took 822.96(s)
+	Best fitness: 0.901796
+	No improvement for 35 gen(s)
+GA: Generation 98: took 1109.38(s)
+	Best fitness: 0.901796
+	No improvement for 36 gen(s)
+GA: Generation 99: took 1075.87(s)
+	Best fitness: 0.901796
+	No improvement for 37 gen(s)
+GA: Generation 100: took 894.31(s)
+	Best fitness: 0.901796
+	No improvement for 38 gen(s)
+Writing result to csv file...
+Done
+Experiment number 1: took 99128.345826(s)
+
+####################
+Experiment number 2
+Logfile:  /repos/faulty_cnn/logging/all/mnist32-cnn_1024_256_64/mnist32-cnn_1024_256_64-2920/LIM_05/LIM_05-3987/ERR_1/c0/all_mnist32-cnn_1024_256_64-2920--LIM_05-3987--ERR_1--c0--ga_84376--1.csv
+Starting GA experiment...
+GA: initializing first population
+GA: start main loop...
+GA: Generation 1: took 965.51(s)
+	Best fitness: 0.780428
+	No improvement for 1 gen(s)
+GA: Generation 2: took 929.18(s)
+	Best fitness: 0.784402
+GA: Generation 3: took 858.47(s)
+	Best fitness: 0.796190
+GA: Generation 4: took 786.87(s)
+	Best fitness: 0.796190
+	No improvement for 1 gen(s)
+GA: Generation 5: took 858.33(s)
+	Best fitness: 0.796190
+	No improvement for 2 gen(s)
+GA: Generation 6: took 750.14(s)
+	Best fitness: 0.806812
+GA: Generation 7: took 1109.24(s)
+	Best fitness: 0.806812
+	No improvement for 1 gen(s)
+GA: Generation 8: took 785.44(s)
+	Best fitness: 0.819010
+GA: Generation 9: took 749.82(s)
+	Best fitness: 0.819010
+	No improvement for 1 gen(s)
+GA: Generation 10: took 1182.78(s)
+	Best fitness: 0.819010
+	No improvement for 2 gen(s)
+GA: Generation 11: took 1214.42(s)
+	Best fitness: 0.825041
+GA: Generation 12: took 939.21(s)
+	Best fitness: 0.826686
+GA: Generation 13: took 1112.18(s)
+	Best fitness: 0.826686
+	No improvement for 1 gen(s)
+GA: Generation 14: took 751.43(s)
+	Best fitness: 0.826686
+	No improvement for 2 gen(s)
+GA: Generation 15: took 822.36(s)
+	Best fitness: 0.826686
+	No improvement for 3 gen(s)
+GA: Generation 16: took 1252.54(s)
+	Best fitness: 0.837103
+GA: Generation 17: took 930.09(s)
+	Best fitness: 0.853207
+GA: Generation 18: took 1072.71(s)
+	Best fitness: 0.890145
+GA: Generation 19: took 1037.06(s)
+	Best fitness: 0.890145
+	No improvement for 1 gen(s)
+GA: Generation 20: took 1148.63(s)
+	Best fitness: 0.890145
+	No improvement for 2 gen(s)
+GA: Generation 21: took 1147.94(s)
+	Best fitness: 0.890145
+	No improvement for 3 gen(s)
+GA: Generation 22: took 932.93(s)
+	Best fitness: 0.890145
+	No improvement for 4 gen(s)
+GA: Generation 23: took 646.60(s)
+	Best fitness: 0.890145
+	No improvement for 5 gen(s)
+GA: Generation 24: took 824.26(s)
+	Best fitness: 0.890145
+	No improvement for 6 gen(s)
+GA: Generation 25: took 725.85(s)
+	Best fitness: 0.890145
+	No improvement for 7 gen(s)
+GA: Generation 26: took 794.63(s)
+	Best fitness: 0.890145
+	No improvement for 8 gen(s)
+GA: Generation 27: took 1218.50(s)
+	Best fitness: 0.890145
+	No improvement for 9 gen(s)
+GA: Generation 28: took 1146.34(s)
+	Best fitness: 0.890145
+	No improvement for 10 gen(s)
+GA: Generation 29: took 1038.93(s)
+	Best fitness: 0.890145
+	No improvement for 11 gen(s)
+GA: Generation 30: took 1012.49(s)
+	Best fitness: 0.890145
+	No improvement for 12 gen(s)
+GA: Generation 31: took 1107.19(s)
+	Best fitness: 0.890145
+	No improvement for 13 gen(s)
+GA: Generation 32: took 786.39(s)
+	Best fitness: 0.890145
+	No improvement for 14 gen(s)
+GA: Generation 33: took 1216.44(s)
+	Best fitness: 0.890145
+	No improvement for 15 gen(s)
+GA: Generation 34: took 1001.50(s)
+	Best fitness: 0.890145
+	No improvement for 16 gen(s)
+GA: Generation 35: took 1072.27(s)
+	Best fitness: 0.890145
+	No improvement for 17 gen(s)
+GA: Generation 36: took 1076.14(s)
+	Best fitness: 0.890145
+	No improvement for 18 gen(s)
+GA: Generation 37: took 1226.90(s)
+	Best fitness: 0.890145
+	No improvement for 19 gen(s)
+GA: Generation 38: took 1184.57(s)
+	Best fitness: 0.890145
+	No improvement for 20 gen(s)
+GA: Generation 39: took 752.79(s)
+	Best fitness: 0.890145
+	No improvement for 21 gen(s)
+GA: Generation 40: took 944.12(s)
+	Best fitness: 0.890145
+	No improvement for 22 gen(s)
+GA: Generation 41: took 977.64(s)
+	Best fitness: 0.890145
+	No improvement for 23 gen(s)
+GA: Generation 42: took 925.92(s)
+	Best fitness: 0.890145
+	No improvement for 24 gen(s)
+GA: Generation 43: took 1039.05(s)
+	Best fitness: 0.890145
+	No improvement for 25 gen(s)
+GA: Generation 44: took 903.29(s)
+	Best fitness: 0.890145
+	No improvement for 26 gen(s)
+GA: Generation 45: took 1072.39(s)
+	Best fitness: 0.890968
+GA: Generation 46: took 1038.74(s)
+	Best fitness: 0.890968
+	No improvement for 1 gen(s)
+GA: Generation 47: took 1004.64(s)
+	Best fitness: 0.890968
+	No improvement for 2 gen(s)
+GA: Generation 48: took 938.02(s)
+	Best fitness: 0.890968
+	No improvement for 3 gen(s)
+GA: Generation 49: took 1053.33(s)
+	Best fitness: 0.890968
+	No improvement for 4 gen(s)
+GA: Generation 50: took 603.36(s)
+	Best fitness: 0.890968
+	No improvement for 5 gen(s)
+GA: Generation 51: took 830.39(s)
+	Best fitness: 0.890968
+	No improvement for 6 gen(s)
+GA: Generation 52: took 1129.04(s)
+	Best fitness: 0.890968
+	No improvement for 7 gen(s)
+GA: Generation 53: took 1109.08(s)
+	Best fitness: 0.890968
+	No improvement for 8 gen(s)
+GA: Generation 54: took 809.66(s)
+	Best fitness: 0.890968
+	No improvement for 9 gen(s)
+GA: Generation 55: took 1112.42(s)
+	Best fitness: 0.893640
+GA: Generation 56: took 712.48(s)
+	Best fitness: 0.893640
+	No improvement for 1 gen(s)
+GA: Generation 57: took 1130.78(s)
+	Best fitness: 0.893640
+	No improvement for 2 gen(s)
+GA: Generation 58: took 1074.61(s)
+	Best fitness: 0.893640
+	No improvement for 3 gen(s)
+GA: Generation 59: took 967.20(s)
+	Best fitness: 0.893640
+	No improvement for 4 gen(s)
+GA: Generation 60: took 1362.06(s)
+	Best fitness: 0.895628
+GA: Generation 61: took 791.05(s)
+	Best fitness: 0.895628
+	No improvement for 1 gen(s)
+GA: Generation 62: took 896.64(s)
+	Best fitness: 0.895628
+	No improvement for 2 gen(s)
+GA: Generation 63: took 823.61(s)
+	Best fitness: 0.895628
+	No improvement for 3 gen(s)
+GA: Generation 64: took 1190.99(s)
+	Best fitness: 0.895628
+	No improvement for 4 gen(s)
+GA: Generation 65: took 1005.78(s)
+	Best fitness: 0.895628
+	No improvement for 5 gen(s)
+GA: Generation 66: took 1090.76(s)
+	Best fitness: 0.895628
+	No improvement for 6 gen(s)
+GA: Generation 67: took 909.18(s)
+	Best fitness: 0.895628
+	No improvement for 7 gen(s)
+GA: Generation 68: took 906.85(s)
+	Best fitness: 0.895628
+	No improvement for 8 gen(s)
+GA: Generation 69: took 1198.78(s)
+	Best fitness: 0.895628
+	No improvement for 9 gen(s)
+GA: Generation 70: took 982.93(s)
+	Best fitness: 0.895628
+	No improvement for 10 gen(s)
+GA: Generation 71: took 763.28(s)
+	Best fitness: 0.895628
+	No improvement for 11 gen(s)
+GA: Generation 72: took 1236.29(s)
+	Best fitness: 0.895628
+	No improvement for 12 gen(s)
+GA: Generation 73: took 1053.42(s)
+	Best fitness: 0.895628
+	No improvement for 13 gen(s)
+GA: Generation 74: took 907.94(s)
+	Best fitness: 0.895628
+	No improvement for 14 gen(s)
+GA: Generation 75: took 982.42(s)
+	Best fitness: 0.895628
+	No improvement for 15 gen(s)
+GA: Generation 76: took 962.29(s)
+	Best fitness: 0.895628
+	No improvement for 16 gen(s)
+GA: Generation 77: took 1092.86(s)
+	Best fitness: 0.895902
+GA: Generation 78: took 686.39(s)
+	Best fitness: 0.895902
+	No improvement for 1 gen(s)
+GA: Generation 79: took 446.99(s)
+	Best fitness: 0.895902
+	No improvement for 2 gen(s)
+GA: Generation 80: took 690.47(s)
+	Best fitness: 0.895902
+	No improvement for 3 gen(s)
+GA: Generation 81: took 729.31(s)
+	Best fitness: 0.895902
+	No improvement for 4 gen(s)
+GA: Generation 82: took 837.36(s)
+	Best fitness: 0.895902
+	No improvement for 5 gen(s)
+GA: Generation 83: took 1056.22(s)
+	Best fitness: 0.895902
+	No improvement for 6 gen(s)
+GA: Generation 84: took 1132.41(s)
+	Best fitness: 0.895902
+	No improvement for 7 gen(s)
+GA: Generation 85: took 911.43(s)
+	Best fitness: 0.895902
+	No improvement for 8 gen(s)
