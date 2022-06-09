@@ -9,7 +9,7 @@ cd ${model_instance}--${error_lim}
 # create job script
 # https://stackoverflow.com/questions/2500436/how-does-cat-eof-work-in-bash
 
-log_folder='/work/gq50/q50002/faulty_cnn/logfiles/qent/mnist32-cnn/'${exp_name}
+log_folder='/work/gq50/q50002/faulty_cnn/logfiles/qmean/mnist32-cnn/'${exp_name}
 mkdir -p ${log_folder}
 
 cat << EOF > ${exp_name}--${model_instance}--${error_lim}.job 
@@ -23,7 +23,7 @@ cat << EOF > ${exp_name}--${model_instance}--${error_lim}.job
 
 module load singularity
 
-cd /work/gq50/q50002/faulty_cnn/ga_scripts/qent/mnist32-cnn/
+cd /work/gq50/q50002/faulty_cnn/ga_scripts/qmean/mnist32-cnn/
 
 singularity exec \
 	--bind `pwd` \
