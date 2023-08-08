@@ -5,12 +5,6 @@ import pathlib
 
 import numpy as np
 
-PROJ_ROOT_PATH = pathlib.Path(git.Repo('.', search_parent_directories=True).working_tree_dir)
-PROJ_ROOT =  str(PROJ_ROOT_PATH)
-if PROJ_ROOT not in sys.path:
-    sys.path.append(PROJ_ROOT)
-
-
 #############################################################################################
 # function to create model instance name with given parameters
 def metadata2instancenames(dataset, model_arch, layer_widths, seed):
